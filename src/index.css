@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -96,6 +99,44 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-goodguess-background text-goodguess-text font-nunito overflow-x-hidden;
+  }
+
+  html, body {
+    @apply h-full;
+  }
+
+  #root {
+    @apply h-full;
+  }
+}
+
+@layer utilities {
+  .font-nunito {
+    font-family: 'Nunito', sans-serif;
+  }
+  
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .glass {
+    @apply bg-white bg-opacity-10 backdrop-filter backdrop-blur-md border border-white border-opacity-20 shadow-lg;
+  }
+  
+  .page-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .interactive {
+    @apply transition-all duration-200 hover:scale-105 active:scale-95;
+  }
+  
+  .text-outline {
+    text-shadow: 
+      -1px -1px 0 rgba(0,0,0,0.1),
+      1px -1px 0 rgba(0,0,0,0.1),
+      -1px 1px 0 rgba(0,0,0,0.1),
+      1px 1px 0 rgba(0,0,0,0.1);
   }
 }
