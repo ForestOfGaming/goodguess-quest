@@ -32,7 +32,8 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     wordsGuessed: 0
   });
   
-  const timerRef = useRef<number | null>(null);
+  // Update the type to NodeJS.Timeout | null to match the return type of setInterval
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
     gameState.mode === 'speedrun' ? gameState.timeLimit : null
   );
