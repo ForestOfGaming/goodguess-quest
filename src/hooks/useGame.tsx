@@ -1,7 +1,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getRandomWord, calculateProximity } from '../data/words';
+import { calculateProximity } from '../data/words';
 import { toast } from 'sonner';
+import { categories } from '../data/categories';
 
 export type GameMode = 'classic' | 'speedrun';
 
@@ -18,32 +19,40 @@ interface GameState {
   wordsGuessed: number; // for speedrun mode
 }
 
-// Function to check if a word is valid (part of the English dictionary)
-const isValidWord = async (word: string): Promise<boolean> => {
+// Simple word validation using regex for English words
+const isValidWord = (word: string): boolean => {
+  // Basic pattern for English words (letters only, at least 2 characters)
+  const englishWordPattern = /^[a-zA-Z]{2,}$/;
+  return englishWordPattern.test(word);
+};
+
+// Generate a word that fits the given category
+const generateTargetWord = (categoryId: string): string => {
   try {
-    const response = await fetch(`https://api.openai.com/v1/embeddings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        input: word,
-        model: "text-embedding-ada-002"
-      })
-    });
-
-    if (!response.ok) {
-      console.error('Error checking word validity:', await response.text());
-      return true; // Default to accepting the word if API fails
+    // Get the category details
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) {
+      console.error('Category not found:', categoryId);
+      return 'apple'; // Fallback word
     }
-
-    const data = await response.json();
-    // If we get a valid embedding back, the word is recognized
-    return !!data.data && data.data.length > 0;
+    
+    // Get possible words for this category from the category's wordList
+    const possibleWords = category.wordList || [];
+    
+    if (possibleWords.length === 0) {
+      console.error('No words found for category:', categoryId);
+      return 'apple'; // Fallback word
+    }
+    
+    // Select a random word from the possible words
+    const randomIndex = Math.floor(Math.random() * possibleWords.length);
+    const targetWord = possibleWords[randomIndex];
+    
+    console.log(`[DEBUG] Generated target word: ${targetWord} for category: ${category.name}`);
+    return targetWord;
   } catch (error) {
-    console.error('Error checking word validity:', error);
-    return true; // Default to accepting the word if API fails
+    console.error('Error generating target word:', error);
+    return 'apple'; // Fallback word
   }
 };
 
@@ -106,8 +115,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
   }, [gameState.mode, gameState.timeLimit, gameState.isGameOver]);
   
   const startNewRound = useCallback(() => {
-    const newWord = getRandomWord(categoryId);
-    console.log(`[DEBUG] New target word: ${newWord}`);
+    const newWord = generateTargetWord(categoryId);
     
     setGameState({
       categoryId,
@@ -137,10 +145,10 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     const normalizedGuess = guess.toLowerCase().trim();
     
     // Check if the word is valid
-    const isValid = await isValidWord(normalizedGuess);
+    const isValid = isValidWord(normalizedGuess);
     
     if (!isValid) {
-      toast.error('Word not recognized');
+      toast.error('Word unknown');
       return;
     }
     
@@ -149,10 +157,15 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     
     // Update game state
     setGameState(prev => {
+      // Add the new guess
       const newGuesses = [...prev.guesses, { word: normalizedGuess, proximity }];
+      
+      // Sort guesses by proximity (highest to lowest)
+      const sortedGuesses = newGuesses.sort((a, b) => b.proximity - a.proximity);
+      
       const newState = {
         ...prev,
-        guesses: newGuesses
+        guesses: sortedGuesses
       };
       
       if (isCorrect) {
@@ -189,7 +202,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     setGameState({
       categoryId,
       mode,
-      targetWord: getRandomWord(categoryId),
+      targetWord: generateTargetWord(categoryId),
       guesses: [],
       isGameOver: false,
       isWon: false,
