@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getRandomWord, calculateProximity } from '../data/words';
+import { words } from '../data/words';
 import { toast } from 'sonner';
 
 export type GameMode = 'classic' | 'speedrun';
@@ -18,35 +18,50 @@ interface GameState {
   wordsGuessed: number; // for speedrun mode
 }
 
-// Simple english word list for validation without requiring API calls
-const commonWords = new Set([
-  "apple", "banana", "orange", "grape", "kiwi", "lemon", "lime", "peach", "pear", "plum",
-  "strawberry", "blueberry", "raspberry", "blackberry", "cherry", "watermelon", "melon",
-  "pineapple", "mango", "papaya", "coconut", "fig", "date", "apricot", "avocado", "guava",
-  "pomegranate", "carrot", "broccoli", "potato", "tomato", "onion", "garlic", "ginger",
-  "spinach", "lettuce", "cucumber", "pepper", "zucchini", "eggplant", "cauliflower",
-  "cabbage", "celery", "beetroot", "turnip", "radish", "asparagus", "corn", "mushroom",
-  "fish", "chicken", "beef", "pork", "lamb", "turkey", "duck", "ham", "sausage", "bacon",
-  "steak", "ribs", "breast", "thigh", "wing", "egg", "milk", "cheese", "yogurt", "butter",
-  "cream", "ice", "chocolate", "vanilla", "strawberry", "mint", "caramel", "coffee",
-  "tea", "juice", "water", "soda", "wine", "beer", "vodka", "whiskey", "rum", "gin",
-  "bread", "toast", "bagel", "muffin", "cake", "pie", "cookie", "donut", "croissant",
-  "waffle", "pancake", "pasta", "noodle", "rice", "potato", "sweet", "sour", "salty",
-  "bitter", "spicy", "hot", "cold", "warm", "frozen", "fresh", "rotten", "raw", "cooked",
-  "baked", "fried", "grilled", "roasted", "boiled", "steamed", "breakfast", "lunch",
-  "dinner", "snack", "appetizer", "dessert", "salad", "soup", "sandwich", "burger",
-  "pizza", "taco", "burrito", "sushi", "curry", "sauce", "ketchup", "mustard", "mayo",
-  "salt", "pepper", "sugar", "honey", "syrup", "jam", "jelly", "olive", "vinegar",
-  "restaurant", "kitchen", "chef", "cook", "recipe", "dish", "meal", "menu", "plate",
-  "bowl", "cup", "glass", "fork", "knife", "spoon", "napkin", "straw", "picnic", "bbq",
-  "vegetable", "fruit", "meat", "dairy", "grain", "cereal", "organic", "diet", "vegan",
-  "gluten", "nutrition", "calorie", "protein", "fat", "carb", "vitamin", "mineral",
-  "fiber", "crocodile", "badger", "armadillo", "hippo", "alpaca"
-]);
+// Build a complete set of valid words including all words from all categories
+const buildValidWordSet = () => {
+  const validWords = new Set([
+    // Basic english words for validation without requiring API calls
+    "apple", "banana", "orange", "grape", "kiwi", "lemon", "lime", "peach", "pear", "plum",
+    "strawberry", "blueberry", "raspberry", "blackberry", "cherry", "watermelon", "melon",
+    "pineapple", "mango", "papaya", "coconut", "fig", "date", "apricot", "avocado", "guava",
+    "pomegranate", "carrot", "broccoli", "potato", "tomato", "onion", "garlic", "ginger",
+    "spinach", "lettuce", "cucumber", "pepper", "zucchini", "eggplant", "cauliflower",
+    "cabbage", "celery", "beetroot", "turnip", "radish", "asparagus", "corn", "mushroom",
+    "fish", "chicken", "beef", "pork", "lamb", "turkey", "duck", "ham", "sausage", "bacon",
+    "steak", "ribs", "breast", "thigh", "wing", "egg", "milk", "cheese", "yogurt", "butter",
+    "cream", "ice", "chocolate", "vanilla", "strawberry", "mint", "caramel", "coffee",
+    "tea", "juice", "water", "soda", "wine", "beer", "vodka", "whiskey", "rum", "gin",
+    "bread", "toast", "bagel", "muffin", "cake", "pie", "cookie", "donut", "croissant",
+    "waffle", "pancake", "pasta", "noodle", "rice", "potato", "sweet", "sour", "salty",
+    "bitter", "spicy", "hot", "cold", "warm", "frozen", "fresh", "rotten", "raw", "cooked",
+    "baked", "fried", "grilled", "roasted", "boiled", "steamed", "breakfast", "lunch",
+    "dinner", "snack", "appetizer", "dessert", "salad", "soup", "sandwich", "burger",
+    "pizza", "taco", "burrito", "sushi", "curry", "sauce", "ketchup", "mustard", "mayo",
+    "salt", "pepper", "sugar", "honey", "syrup", "jam", "jelly", "olive", "vinegar",
+    "restaurant", "kitchen", "chef", "cook", "recipe", "dish", "meal", "menu", "plate",
+    "bowl", "cup", "glass", "fork", "knife", "spoon", "napkin", "straw", "picnic", "bbq",
+    "vegetable", "fruit", "meat", "dairy", "grain", "cereal", "organic", "diet", "vegan",
+    "gluten", "nutrition", "calorie", "protein", "fat", "carb", "vitamin", "mineral",
+    "fiber", "crocodile", "badger", "armadillo", "hippo", "alpaca"
+  ]);
 
-// Simple dictionary validation
+  // Add all words from all categories to ensure our target words are recognized
+  Object.values(words).forEach(categoryWords => {
+    categoryWords.forEach(word => {
+      validWords.add(word.toLowerCase());
+    });
+  });
+
+  return validWords;
+};
+
+const validWordSet = buildValidWordSet();
+
+// Dictionary validation with the expanded word set
 const isValidWord = (word: string): boolean => {
-  return commonWords.has(word.toLowerCase());
+  console.log(`Checking if '${word}' is valid. Result: ${validWordSet.has(word.toLowerCase())}`);
+  return validWordSet.has(word.toLowerCase());
 };
 
 export const useGame = (categoryId: string, mode: GameMode) => {
