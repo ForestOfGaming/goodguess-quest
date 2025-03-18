@@ -48,6 +48,9 @@ const Game = () => {
     }
   };
   
+  // Sort guesses by proximity (highest to lowest)
+  const sortedGuesses = [...gameState.guesses].sort((a, b) => b.proximity - a.proximity);
+  
   return (
     <div className="min-h-screen flex flex-col bg-goodguess-background">
       <NavBar />
@@ -135,7 +138,7 @@ const Game = () => {
           
           <div className="space-y-2">
             <AnimatePresence>
-              {gameState.guesses.map((guess, index) => (
+              {sortedGuesses.map((guess, index) => (
                 <motion.div
                   key={`${guess.word}-${index}`}
                   initial={{ opacity: 0, y: 20 }}

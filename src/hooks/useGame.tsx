@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getRandomWord, calculateProximity } from '../data/words';
 import { words } from '../data/words';
@@ -18,7 +19,18 @@ interface GameState {
   wordsGuessed: number; // for speedrun mode
 }
 
-// Build a complete set of valid words including all words from all categories
+// This regex pattern will match most English words
+// It allows letters, hyphenated words, and appropriate apostrophes
+const isValidEnglishWord = (word: string): boolean => {
+  // Basic validation pattern for English words: at least 2 characters,
+  // allows letters, hyphens, and apostrophes in appropriate positions
+  const wordPattern = /^[a-zA-Z]+(-[a-zA-Z]+)*('s)?$/;
+  
+  // Test if the input matches the pattern
+  return wordPattern.test(word);
+};
+
+// Build a list of known valid words for additional validation
 const buildValidWordSet = () => {
   const validWords = new Set([
     // Basic english words for validation without requiring API calls
@@ -43,7 +55,64 @@ const buildValidWordSet = () => {
     "bowl", "cup", "glass", "fork", "knife", "spoon", "napkin", "straw", "picnic", "bbq",
     "vegetable", "fruit", "meat", "dairy", "grain", "cereal", "organic", "diet", "vegan",
     "gluten", "nutrition", "calorie", "protein", "fat", "carb", "vitamin", "mineral",
-    "fiber", "crocodile", "badger", "armadillo", "hippo", "alpaca"
+    "fiber", "crocodile", "badger", "armadillo", "hippo", "alpaca", "computer", "server",
+    "website", "software", "hardware", "monitor", "keyboard", "speaker", "microphone",
+    "camera", "printer", "scanner", "drone", "robot", "algorithm", "bluetooth", "internet",
+    "ethernet", "firewall", "antivirus", "browser", "cookie", "database", "encryption",
+    "password", "username", "chipset", "processor", "memory", "storage", "backup",
+    "download", "upload", "streaming", "wireless", "satellite", "programming", "virtual",
+    "cloud", "device", "network", "system", "app", "application", "code", "developer",
+    "engineer", "tech", "technology", "digital", "analog", "circuit", "battery", "power",
+    "energy", "solar", "electric", "electronic", "machine", "engine", "motor", "turbine",
+    "generator", "transformer", "conductor", "insulator", "semiconductor", "transistor",
+    "resistor", "capacitor", "inductor", "diode", "relay", "switch", "sensor", "detector",
+    "transmitter", "receiver", "antenna", "signal", "data", "information", "knowledge",
+    "wisdom", "intelligence", "artificial", "machine", "learning", "neural", "network",
+    "deep", "mining", "database", "warehouse", "lake", "stream", "flow", "processing",
+    "filter", "sort", "search", "index", "query", "result", "output", "input", "throughput",
+    "latency", "bandwidth", "protocol", "standard", "specification", "requirement", "design",
+    "implementation", "testing", "deployment", "maintenance", "support", "service", "client",
+    "server", "peer", "host", "guest", "user", "customer", "vendor", "supplier", "partner",
+    "stakeholder", "investor", "entrepreneur", "startup", "corporation", "company", "firm",
+    "enterprise", "business", "industry", "sector", "market", "economy", "finance", "bank",
+    "loan", "credit", "debit", "asset", "liability", "equity", "stock", "bond", "fund",
+    "investment", "return", "profit", "loss", "revenue", "expense", "cost", "price", "value",
+    "worth", "wealth", "poverty", "income", "salary", "wage", "compensation", "benefit",
+    "pension", "retirement", "insurance", "risk", "hazard", "danger", "safety", "security",
+    "privacy", "confidentiality", "integrity", "availability", "reliability", "durability",
+    "quality", "quantity", "size", "shape", "color", "texture", "material", "substance",
+    "element", "compound", "mixture", "solution", "reaction", "process", "procedure",
+    "method", "technique", "skill", "ability", "talent", "gift", "genius", "savant",
+    "expert", "novice", "beginner", "intermediate", "advanced", "master", "guru", "wizard",
+    "witch", "warlock", "sorcerer", "magician", "enchanter", "spell", "charm", "curse",
+    "blessing", "prayer", "meditation", "contemplation", "reflection", "introspection",
+    "consciousness", "awareness", "perception", "sensation", "feeling", "emotion", "mood",
+    "attitude", "belief", "faith", "trust", "doubt", "skepticism", "cynicism", "optimism",
+    "pessimism", "realism", "idealism", "rationalism", "empiricism", "pragmatism",
+    "existentialism", "nihilism", "absurdism", "stoicism", "epicureanism", "hedonism",
+    "utilitarianism", "consequentialism", "deontology", "virtue", "ethics", "morality",
+    "liberty", "freedom", "justice", "fairness", "equality", "equity", "diversity",
+    "inclusion", "discrimination", "prejudice", "bias", "stereotype", "generalization",
+    "assumption", "inference", "deduction", "induction", "abduction", "reasoning", "logic",
+    "fallacy", "paradox", "contradiction", "consistency", "coherence", "precision",
+    "accuracy", "clarity", "ambiguity", "vagueness", "specificity", "generality", "abstract",
+    "concrete", "physical", "metaphysical", "natural", "supernatural", "normal", "paranormal",
+    "ordinary", "extraordinary", "common", "rare", "unique", "special", "general", "specific",
+    "particular", "universal", "local", "global", "regional", "national", "international",
+    "multinational", "transnational", "supranational", "federal", "central", "peripheral",
+    "marginal", "mainstream", "alternative", "conventional", "traditional", "modern",
+    "contemporary", "futuristic", "ancient", "antique", "vintage", "classic", "retro",
+    "nostalgic", "innovative", "creative", "original", "derivative", "copy", "replica",
+    "simulation", "emulation", "imitation", "forgery", "counterfeit", "authentic", "genuine",
+    "fake", "artificial", "synthetic", "natural", "organic", "biological", "chemical",
+    "physical", "mechanical", "electrical", "electronic", "digital", "analog", "manual",
+    "automatic", "autonomous", "dependent", "independent", "interdependent", "reliant",
+    "self-sufficient", "sustainable", "renewable", "recyclable", "disposable", "consumable",
+    "durable", "permanent", "temporary", "fleeting", "ephemeral", "eternal", "infinite",
+    "finite", "limited", "unlimited", "restricted", "unrestricted", "constrained",
+    "unconstrained", "bounded", "unbounded", "open", "closed", "ajar", "fixed", "mobile",
+    "portable", "wearable", "implantable", "external", "internal", "intrinsic", "extrinsic",
+    "inherent", "acquired", "learned", "innate", "instinctive", "intuitive", "rational"
   ]);
 
   // Add all words from all categories to ensure our target words are recognized
@@ -58,10 +127,25 @@ const buildValidWordSet = () => {
 
 const validWordSet = buildValidWordSet();
 
-// Dictionary validation with the expanded word set
+// Word validation that accepts most valid English words
 const isValidWord = (word: string): boolean => {
-  console.log(`Checking if '${word}' is valid. Result: ${validWordSet.has(word.toLowerCase())}`);
-  return validWordSet.has(word.toLowerCase());
+  const normalizedWord = word.toLowerCase().trim();
+  
+  // Check if it's in our known word set
+  if (validWordSet.has(normalizedWord)) {
+    console.log(`Known word '${normalizedWord}' validated`);
+    return true;
+  }
+  
+  // If not in our set, use regex pattern to validate if it looks like a valid English word
+  // This allows any word that follows English word patterns, even if not in our dictionary
+  if (isValidEnglishWord(normalizedWord) && normalizedWord.length >= 2) {
+    console.log(`New word '${normalizedWord}' accepted as valid English word`);
+    return true;
+  }
+  
+  console.log(`Word '${normalizedWord}' rejected as invalid`);
+  return false;
 };
 
 export const useGame = (categoryId: string, mode: GameMode) => {
