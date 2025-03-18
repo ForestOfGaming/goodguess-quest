@@ -18,33 +18,35 @@ interface GameState {
   wordsGuessed: number; // for speedrun mode
 }
 
-// Function to check if a word is valid (part of the English dictionary)
-const isValidWord = async (word: string): Promise<boolean> => {
-  try {
-    const response = await fetch(`https://api.openai.com/v1/embeddings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        input: word,
-        model: "text-embedding-ada-002"
-      })
-    });
+// Simple english word list for validation without requiring API calls
+const commonWords = new Set([
+  "apple", "banana", "orange", "grape", "kiwi", "lemon", "lime", "peach", "pear", "plum",
+  "strawberry", "blueberry", "raspberry", "blackberry", "cherry", "watermelon", "melon",
+  "pineapple", "mango", "papaya", "coconut", "fig", "date", "apricot", "avocado", "guava",
+  "pomegranate", "carrot", "broccoli", "potato", "tomato", "onion", "garlic", "ginger",
+  "spinach", "lettuce", "cucumber", "pepper", "zucchini", "eggplant", "cauliflower",
+  "cabbage", "celery", "beetroot", "turnip", "radish", "asparagus", "corn", "mushroom",
+  "fish", "chicken", "beef", "pork", "lamb", "turkey", "duck", "ham", "sausage", "bacon",
+  "steak", "ribs", "breast", "thigh", "wing", "egg", "milk", "cheese", "yogurt", "butter",
+  "cream", "ice", "chocolate", "vanilla", "strawberry", "mint", "caramel", "coffee",
+  "tea", "juice", "water", "soda", "wine", "beer", "vodka", "whiskey", "rum", "gin",
+  "bread", "toast", "bagel", "muffin", "cake", "pie", "cookie", "donut", "croissant",
+  "waffle", "pancake", "pasta", "noodle", "rice", "potato", "sweet", "sour", "salty",
+  "bitter", "spicy", "hot", "cold", "warm", "frozen", "fresh", "rotten", "raw", "cooked",
+  "baked", "fried", "grilled", "roasted", "boiled", "steamed", "breakfast", "lunch",
+  "dinner", "snack", "appetizer", "dessert", "salad", "soup", "sandwich", "burger",
+  "pizza", "taco", "burrito", "sushi", "curry", "sauce", "ketchup", "mustard", "mayo",
+  "salt", "pepper", "sugar", "honey", "syrup", "jam", "jelly", "olive", "vinegar",
+  "restaurant", "kitchen", "chef", "cook", "recipe", "dish", "meal", "menu", "plate",
+  "bowl", "cup", "glass", "fork", "knife", "spoon", "napkin", "straw", "picnic", "bbq",
+  "vegetable", "fruit", "meat", "dairy", "grain", "cereal", "organic", "diet", "vegan",
+  "gluten", "nutrition", "calorie", "protein", "fat", "carb", "vitamin", "mineral",
+  "fiber", "crocodile", "badger", "armadillo", "hippo", "alpaca"
+]);
 
-    if (!response.ok) {
-      console.error('Error checking word validity:', await response.text());
-      return true; // Default to accepting the word if API fails
-    }
-
-    const data = await response.json();
-    // If we get a valid embedding back, the word is recognized
-    return !!data.data && data.data.length > 0;
-  } catch (error) {
-    console.error('Error checking word validity:', error);
-    return true; // Default to accepting the word if API fails
-  }
+// Simple dictionary validation
+const isValidWord = (word: string): boolean => {
+  return commonWords.has(word.toLowerCase());
 };
 
 export const useGame = (categoryId: string, mode: GameMode) => {
@@ -125,7 +127,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     setTimeRemaining(mode === 'speedrun' ? 60 : null);
   }, [categoryId, mode, gameState.wordsGuessed]);
   
-  const submitGuess = useCallback(async (guess: string) => {
+  const submitGuess = useCallback((guess: string) => {
     if (gameState.isGameOver) return;
     
     // Validate input
@@ -137,9 +139,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     const normalizedGuess = guess.toLowerCase().trim();
     
     // Check if the word is valid
-    const isValid = await isValidWord(normalizedGuess);
-    
-    if (!isValid) {
+    if (!isValidWord(normalizedGuess)) {
       toast.error('Word not recognized');
       return;
     }
