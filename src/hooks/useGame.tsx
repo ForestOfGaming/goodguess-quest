@@ -18,6 +18,35 @@ interface GameState {
   wordsGuessed: number; // for speedrun mode
 }
 
+// Function to check if a word is valid (part of the English dictionary)
+const isValidWord = async (word: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`https://api.openai.com/v1/embeddings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        input: word,
+        model: "text-embedding-ada-002"
+      })
+    });
+
+    if (!response.ok) {
+      console.error('Error checking word validity:', await response.text());
+      return true; // Default to accepting the word if API fails
+    }
+
+    const data = await response.json();
+    // If we get a valid embedding back, the word is recognized
+    return !!data.data && data.data.length > 0;
+  } catch (error) {
+    console.error('Error checking word validity:', error);
+    return true; // Default to accepting the word if API fails
+  }
+};
+
 export const useGame = (categoryId: string, mode: GameMode) => {
   const [gameState, setGameState] = useState<GameState>({
     categoryId,
@@ -96,7 +125,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     setTimeRemaining(mode === 'speedrun' ? 60 : null);
   }, [categoryId, mode, gameState.wordsGuessed]);
   
-  const submitGuess = useCallback((guess: string) => {
+  const submitGuess = useCallback(async (guess: string) => {
     if (gameState.isGameOver) return;
     
     // Validate input
@@ -106,6 +135,15 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     }
     
     const normalizedGuess = guess.toLowerCase().trim();
+    
+    // Check if the word is valid
+    const isValid = await isValidWord(normalizedGuess);
+    
+    if (!isValid) {
+      toast.error('Word not recognized');
+      return;
+    }
+    
     const proximity = calculateProximity(normalizedGuess, gameState.targetWord);
     const isCorrect = proximity === 100;
     
