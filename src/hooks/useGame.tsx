@@ -15,6 +15,8 @@ interface GameState {
   endTime: number | null;
   timeLimit: number | null; // for speedrun mode
   wordsGuessed: number; // for speedrun mode
+  hintsEnabled: boolean; // track if hints are enabled
+  currentHint: string | null; // store the current hint
 }
 
 // Improved word validation with better checks for real English words
@@ -135,6 +137,52 @@ const generateTargetWord = (categoryId: string): string => {
   }
 };
 
+// Generate a hint for the target word
+const generateHint = (targetWord: string): string => {
+  // Different hint strategies
+  const hintTypes = [
+    // First letter hint
+    () => `The word starts with "${targetWord[0].toUpperCase()}"`,
+    
+    // Length hint
+    () => `The word has ${targetWord.length} letters`,
+    
+    // Partial reveal (reveal ~30% of letters with their positions)
+    () => {
+      const letters = targetWord.split('');
+      const revealCount = Math.max(1, Math.floor(letters.length * 0.3));
+      const positions = [];
+      
+      // Collect random positions to reveal
+      while (positions.length < revealCount) {
+        const pos = Math.floor(Math.random() * letters.length);
+        if (!positions.includes(pos)) {
+          positions.push(pos);
+        }
+      }
+      
+      // Create the hint with revealed letters
+      let hint = 'Some letters: ';
+      positions.sort((a, b) => a - b);
+      positions.forEach((pos, idx) => {
+        hint += `"${letters[pos].toUpperCase()}" at position ${pos + 1}`;
+        if (idx < positions.length - 1) {
+          hint += ', ';
+        }
+      });
+      
+      return hint;
+    },
+    
+    // Category specific hint
+    (category?: string) => `This is a ${category || 'common'} word`
+  ];
+  
+  // Select a random hint type
+  const randomHintType = Math.floor(Math.random() * hintTypes.length);
+  return hintTypes[randomHintType]();
+};
+
 export const useGame = (categoryId: string, mode: GameMode) => {
   const [gameState, setGameState] = useState<GameState>({
     categoryId,
@@ -146,10 +194,11 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     startTime: Date.now(),
     endTime: null,
     timeLimit: mode === 'speedrun' ? 60 : null, // 60 seconds for speedrun
-    wordsGuessed: 0
+    wordsGuessed: 0,
+    hintsEnabled: true, // hints enabled by default
+    currentHint: null
   });
   
-  // Update the type to NodeJS.Timeout | null to match the return type of setInterval
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
     gameState.mode === 'speedrun' ? gameState.timeLimit : null
@@ -206,11 +255,23 @@ export const useGame = (categoryId: string, mode: GameMode) => {
       startTime: Date.now(),
       endTime: null,
       timeLimit: mode === 'speedrun' ? 60 : null,
-      wordsGuessed: gameState.wordsGuessed
+      wordsGuessed: gameState.wordsGuessed,
+      hintsEnabled: gameState.hintsEnabled,
+      currentHint: null
     });
     
     setTimeRemaining(mode === 'speedrun' ? 60 : null);
-  }, [categoryId, mode, gameState.wordsGuessed]);
+  }, [categoryId, mode, gameState.wordsGuessed, gameState.hintsEnabled]);
+  
+  const toggleHints = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      hintsEnabled: !prev.hintsEnabled,
+      currentHint: !prev.hintsEnabled ? prev.currentHint : null
+    }));
+    
+    toast.success(gameState.hintsEnabled ? 'Hints disabled' : 'Hints enabled');
+  }, [gameState.hintsEnabled]);
   
   const submitGuess = useCallback(async (guess: string) => {
     if (gameState.isGameOver) return;
@@ -244,8 +305,21 @@ export const useGame = (categoryId: string, mode: GameMode) => {
       
       const newState = {
         ...prev,
-        guesses: sortedGuesses
+        guesses: sortedGuesses,
       };
+      
+      // Check if we should provide a hint (every 15 wrong guesses)
+      if (prev.hintsEnabled && !isCorrect && newGuesses.length % 15 === 0) {
+        const hint = generateHint(prev.targetWord);
+        newState.currentHint = hint;
+        
+        // Show hint toast
+        setTimeout(() => {
+          toast.info(`Hint: ${hint}`, {
+            duration: 8000,
+          });
+        }, 500);
+      }
       
       if (isCorrect) {
         if (prev.mode === 'classic') {
@@ -268,7 +342,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     if (isCorrect && gameState.mode === 'classic') {
       toast.success('You guessed the word!');
     }
-  }, [gameState.isGameOver, gameState.targetWord, gameState.mode, startNewRound]);
+  }, [gameState.isGameOver, gameState.targetWord, gameState.mode, gameState.hintsEnabled, startNewRound]);
   
   const getElapsedTime = useCallback(() => {
     if (gameState.endTime) {
@@ -288,11 +362,13 @@ export const useGame = (categoryId: string, mode: GameMode) => {
       startTime: Date.now(),
       endTime: null,
       timeLimit: mode === 'speedrun' ? 60 : null,
-      wordsGuessed: 0
+      wordsGuessed: 0,
+      hintsEnabled: gameState.hintsEnabled,
+      currentHint: null
     });
     
     setTimeRemaining(mode === 'speedrun' ? 60 : null);
-  }, [categoryId, mode]);
+  }, [categoryId, mode, gameState.hintsEnabled]);
   
   return {
     gameState,
@@ -300,7 +376,8 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     submitGuess,
     getElapsedTime,
     resetGame,
-    startNewRound
+    startNewRound,
+    toggleHints
   };
 };
 

@@ -2,8 +2,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Lightbulb } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import ProximityBar from '../components/ProximityBar';
+import { Switch } from '../components/ui/switch';
 import useGame, { GameMode } from '../hooks/useGame';
 import { categories } from '../data/categories';
 
@@ -18,7 +20,8 @@ const Game = () => {
     gameState,
     timeRemaining,
     submitGuess,
-    getElapsedTime
+    getElapsedTime,
+    toggleHints
   } = useGame(categoryId, mode as GameMode);
   
   useEffect(() => {
@@ -100,7 +103,7 @@ const Game = () => {
         </motion.h1>
         
         <div className="max-w-md mx-auto w-full">
-          <form onSubmit={handleSubmit} className="mb-10">
+          <form onSubmit={handleSubmit} className="mb-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -125,6 +128,17 @@ const Game = () => {
             </motion.div>
           </form>
           
+          <div className="flex items-center justify-center mb-6 space-x-2">
+            <Lightbulb className={`w-5 h-5 ${gameState.hintsEnabled ? 'text-yellow-500' : 'text-gray-400'}`} />
+            <span className="text-sm font-medium">Hints</span>
+            <Switch 
+              checked={gameState.hintsEnabled}
+              onCheckedChange={toggleHints}
+              className="data-[state=checked]:bg-yellow-500"
+            />
+            <span className="text-xs text-gray-500">(every 15 guesses)</span>
+          </div>
+          
           {mode === 'speedrun' && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -133,6 +147,17 @@ const Game = () => {
               className="text-center mb-6 text-xl font-bold"
             >
               Words guessed: {gameState.wordsGuessed}
+            </motion.div>
+          )}
+          
+          {gameState.currentHint && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg mb-6 flex items-center"
+            >
+              <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
+              <span className="text-sm">Hint: {gameState.currentHint}</span>
             </motion.div>
           )}
           
