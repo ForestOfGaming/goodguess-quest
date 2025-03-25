@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { categories } from '../data/categories';
@@ -19,7 +20,7 @@ interface GameState {
   currentHint: string | null; // store the current hint
 }
 
-// Improved word validation with better checks for real English words
+// Improved word validation with stronger checks for real English words
 const isValidWord = (word: string): boolean => {
   if (!word || word.trim() === '') return false;
   
@@ -36,7 +37,7 @@ const isValidWord = (word: string): boolean => {
     }
   }
   
-  // Check for common non-words (basic blacklist approach)
+  // Check for common non-words patterns (expanded blacklist approach)
   const nonWords = ['aaa', 'bbb', 'ccc', 'ddd', 'eee', 'fff', 'ggg', 'hhh', 'iii', 
                    'jjj', 'kkk', 'lll', 'mmm', 'nnn', 'ooo', 'ppp', 'qqq', 'rrr', 
                    'sss', 'ttt', 'uuu', 'vvv', 'www', 'xxx', 'yyy', 'zzz',
@@ -48,6 +49,22 @@ const isValidWord = (word: string): boolean => {
   
   // Basic length check (most real words aren't extremely long)
   if (normalizedWord.length > 30) {
+    return false;
+  }
+  
+  // Check for repeating characters (e.g., "aaaa", "lllll")
+  if (/(.)\1{2,}/.test(normalizedWord)) {
+    return false;
+  }
+  
+  // Check for common keyboard patterns that aren't real words
+  if (/^[qwertasdfgzxcvb]{3,}$/.test(normalizedWord) || 
+      /^[yuiophjklnm]{3,}$/.test(normalizedWord)) {
+    return false;
+  }
+  
+  // Check for words with unusual consonant patterns (non-pronounceable)
+  if (/[bcdfghjklmnpqrstvwxz]{4,}/.test(normalizedWord)) {
     return false;
   }
   
