@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { calculateProximity } from '../data/words';
+import { calculateProximity, words } from '../data/words';
 import { toast } from 'sonner';
 import { categories } from '../data/categories';
 
@@ -36,8 +36,8 @@ const generateTargetWord = (categoryId: string): string => {
       return 'apple'; // Fallback word
     }
     
-    // Get possible words for this category from the category's wordList
-    const possibleWords = category.wordList || [];
+    // Get possible words for this category from the words object
+    const possibleWords = words[categoryId] || [];
     
     if (possibleWords.length === 0) {
       console.error('No words found for category:', categoryId);

@@ -3,6 +3,7 @@ export interface Category {
   id: string;
   name: string;
   emoji: string;
+  wordList?: string[]; // Added optional wordList property
 }
 
 export const categories: Category[] = [
