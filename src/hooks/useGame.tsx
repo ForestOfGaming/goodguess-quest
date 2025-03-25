@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { categories } from '../data/categories';
@@ -18,11 +17,39 @@ interface GameState {
   wordsGuessed: number; // for speedrun mode
 }
 
-// Simple word validation using regex for English words
+// Improved word validation with better checks for real English words
 const isValidWord = (word: string): boolean => {
-  // Basic pattern for English words (letters only, at least 2 characters)
-  const englishWordPattern = /^[a-zA-Z]{2,}$/;
-  return englishWordPattern.test(word);
+  if (!word || word.trim() === '') return false;
+  
+  // Allow multi-word terms (e.g. "New York", "Ice Cream")
+  const normalizedWord = word.trim().toLowerCase();
+  
+  // Check each word segment for validity
+  const wordSegments = normalizedWord.split(' ');
+  
+  for (const segment of wordSegments) {
+    // Each segment should be at least 2 characters and contain only letters
+    if (segment.length < 2 || !/^[a-z]+$/.test(segment)) {
+      return false;
+    }
+  }
+  
+  // Check for common non-words (basic blacklist approach)
+  const nonWords = ['aaa', 'bbb', 'ccc', 'ddd', 'eee', 'fff', 'ggg', 'hhh', 'iii', 
+                   'jjj', 'kkk', 'lll', 'mmm', 'nnn', 'ooo', 'ppp', 'qqq', 'rrr', 
+                   'sss', 'ttt', 'uuu', 'vvv', 'www', 'xxx', 'yyy', 'zzz',
+                   'asd', 'qwe', 'zxc', 'asdf', 'qwer', 'wasd'];
+                   
+  if (nonWords.includes(normalizedWord)) {
+    return false;
+  }
+  
+  // Basic length check (most real words aren't extremely long)
+  if (normalizedWord.length > 30) {
+    return false;
+  }
+  
+  return true;
 };
 
 // Calculate how close two words are (0-100)
@@ -194,7 +221,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
       return;
     }
     
-    const normalizedGuess = guess.toLowerCase().trim();
+    const normalizedGuess = guess.trim();
     
     // Check if the word is valid
     const isValid = isValidWord(normalizedGuess);
