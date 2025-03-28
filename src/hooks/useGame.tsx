@@ -788,4 +788,8 @@ const moviesDatabase: Record<string, SemanticData> = {
     related: ['fantasy', 'magic', 'wizards'],
     properties: {
       genre: ['fantasy', 'adventure', 'young adult'],
-      director: ['chris
+      director: ['chris columbus', 'alfonso cuaron', 'mike newell', 'david yates'],
+      features: ['hogwarts', 'magic', 'wizards', 'voldemort', 'friendship']
+    }
+  }
+};
