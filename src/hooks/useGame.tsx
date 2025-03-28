@@ -788,31 +788,4 @@ const moviesDatabase: Record<string, SemanticData> = {
     related: ['fantasy', 'magic', 'wizards'],
     properties: {
       genre: ['fantasy', 'adventure', 'young adult'],
-      director: ['chris columbus', 'alfonso cuaron', 'mike newell', 'david yates'],
-      features: ['hogwarts', 'magic', 'wizards', 'voldemort', 'friendship']
-    }
-  }
-};
-
-export const useGame = (categoryId: string, mode: GameMode) => {
-  return {
-    gameState: {
-      categoryId,
-      mode,
-      targetWord: '',
-      guesses: [],
-      isGameOver: false,
-      isWon: false,
-      startTime: Date.now(),
-      endTime: null,
-      timeLimit: mode === 'speedrun' ? 60 : null,
-      wordsGuessed: 0,
-      hintsEnabled: false,
-      currentHint: null
-    },
-    timeRemaining: mode === 'speedrun' ? 60 : null,
-    submitGuess: (guess: string) => {},
-    getElapsedTime: () => 0,
-    toggleHints: () => {}
-  };
-};
+      director: ['chris

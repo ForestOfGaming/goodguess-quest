@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,7 +6,7 @@ import NavBar from '../components/NavBar';
 import ProximityBar from '../components/ProximityBar';
 import { Switch } from '../components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
-import { useGame, GameMode } from '../hooks/useGame';
+import useGame, { GameMode } from '../hooks/useGame';
 import { categories } from '../data/categories';
 
 const Game = () => {
