@@ -5,23 +5,7 @@ import { categories } from '../data/categories';
 import { isValidWord } from '../utils/wordValidation';
 import { calculateSemanticProximity } from '../utils/proximityCalculation';
 import { generateHint, getRandomWord } from '../utils/hintGeneration';
-
-export type GameMode = 'classic' | 'speedrun';
-
-export interface GameState {
-  categoryId: string;
-  mode: GameMode;
-  targetWord: string;
-  guesses: Array<{ word: string; proximity: number }>;
-  isGameOver: boolean;
-  isWon: boolean;
-  startTime: number;
-  endTime: number | null;
-  timeLimit: number | null; // for speedrun mode
-  wordsGuessed: number; // for speedrun mode
-  hintsEnabled: boolean; // track if hints are enabled
-  currentHint: string | null; // store the current hint
-}
+import { GameState, GameMode } from '../types/game';
 
 // The main game hook
 export const useGame = (categoryId: string, mode: GameMode) => {
