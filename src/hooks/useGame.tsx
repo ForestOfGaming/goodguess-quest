@@ -794,25 +794,419 @@ const moviesDatabase: Record<string, SemanticData> = {
   }
 };
 
+// Calculate semantic similarity between words
+const calculateSemanticProximity = (guess: string, targetWord: string, categoryId: string): number => {
+  // Base similarity score using string comparison
+  const stringProximity = calculateStringProximity(guess, targetWord);
+  
+  // Get semantic databases based on category
+  let semanticDatabase: Record<string, SemanticData> | null = null;
+  
+  switch(categoryId) {
+    case 'food':
+      semanticDatabase = foodDatabase;
+      break;
+    case 'animals':
+      semanticDatabase = animalsDatabase;
+      break;
+    case 'countries':
+      semanticDatabase = countriesDatabase;
+      break;
+    case 'sports':
+      semanticDatabase = sportsDatabase;
+      break;
+    case 'movies':
+      semanticDatabase = moviesDatabase;
+      break;
+    default:
+      return stringProximity; // Fall back to string comparison for other categories
+  }
+  
+  // Normalize input words
+  const normalizedGuess = guess.toLowerCase().trim();
+  const normalizedTarget = targetWord.toLowerCase().trim();
+  
+  // If either word isn't in our database, fall back to string comparison
+  if (!semanticDatabase[normalizedGuess] || !semanticDatabase[normalizedTarget]) {
+    return stringProximity;
+  }
+  
+  // Get data for both words
+  const guessData = semanticDatabase[normalizedGuess];
+  const targetData = semanticDatabase[normalizedTarget];
+  
+  // Calculate semantic similarity based on shared properties
+  let semanticScore = 0;
+  let totalPossibleScore = 0;
+  
+  // Check if words are directly related
+  if (guessData.related.includes(normalizedTarget) || targetData.related.includes(normalizedGuess)) {
+    semanticScore += 30;
+  }
+  totalPossibleScore += 30;
+  
+  // Compare properties
+  for (const [property, values] of Object.entries(targetData.properties)) {
+    if (guessData.properties[property]) {
+      const guessValues = guessData.properties[property];
+      
+      // Count shared property values
+      let sharedValues = 0;
+      for (const value of values) {
+        if (guessValues.includes(value)) {
+          sharedValues++;
+        }
+      }
+      
+      // Score based on percentage of shared values
+      const propertyScore = 20 * (sharedValues / Math.max(values.length, guessValues.length));
+      semanticScore += propertyScore;
+      totalPossibleScore += 20;
+    }
+  }
+  
+  // Combine string and semantic proximity
+  const combinedProximity = 0.4 * stringProximity + 0.6 * (semanticScore / totalPossibleScore * 100);
+  
+  return Math.min(Math.round(combinedProximity), 99); // Cap at 99% unless exact match
+};
+
+// Calculate string proximity using Levenshtein distance and other metrics
+const calculateStringProximity = (guess: string, targetWord: string): number => {
+  const normalizedGuess = guess.toLowerCase().trim();
+  const normalizedTarget = targetWord.toLowerCase().trim();
+  
+  // Exact match
+  if (normalizedGuess === normalizedTarget) {
+    return 100;
+  }
+  
+  // Calculate Levenshtein distance
+  const levenshtein = levenshteinDistance(normalizedGuess, normalizedTarget);
+  
+  // Maximum possible distance for normalization
+  const maxLength = Math.max(normalizedGuess.length, normalizedTarget.length);
+  
+  // Normalize distance to a percentage
+  const normalizedDistance = (maxLength - levenshtein) / maxLength;
+  
+  // Convert to proximity percentage
+  const proximityPercentage = Math.round(normalizedDistance * 100);
+  
+  return proximityPercentage;
+};
+
+// Calculate Levenshtein distance between strings
+const levenshteinDistance = (str1: string, str2: string): number => {
+  const m = str1.length;
+  const n = str2.length;
+  
+  // Create distance matrix
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  
+  // Initialize first row and column
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i;
+  }
+  
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j;
+  }
+  
+  // Fill the matrix
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1, // deletion
+        dp[i][j - 1] + 1, // insertion
+        dp[i - 1][j - 1] + cost // substitution
+      );
+    }
+  }
+  
+  return dp[m][n];
+};
+
+// Generate a hint based on the target word and category
+const generateHint = (targetWord: string, categoryId: string): string => {
+  const normalizedTarget = targetWord.toLowerCase().trim();
+  
+  // Get database based on category
+  let semanticDatabase: Record<string, SemanticData> | null = null;
+  
+  switch(categoryId) {
+    case 'food':
+      semanticDatabase = foodDatabase;
+      break;
+    case 'animals':
+      semanticDatabase = animalsDatabase;
+      break;
+    case 'countries':
+      semanticDatabase = countriesDatabase;
+      break;
+    case 'sports':
+      semanticDatabase = sportsDatabase;
+      break;
+    case 'movies':
+      semanticDatabase = moviesDatabase;
+      break;
+    default:
+      return `It has ${targetWord.length} letters.`; // Fallback hint
+  }
+  
+  // If the target word is in our database, give a semantic hint
+  if (semanticDatabase[normalizedTarget]) {
+    const targetData = semanticDatabase[normalizedTarget];
+    
+    // Randomly choose a hint type
+    const hintType = Math.floor(Math.random() * 3);
+    
+    switch(hintType) {
+      case 0: // Related words hint
+        if (targetData.related.length > 0) {
+          const relatedWord = targetData.related[Math.floor(Math.random() * targetData.related.length)];
+          return `It's related to ${relatedWord}.`;
+        }
+        break;
+      
+      case 1: // Property hint
+        const properties = Object.keys(targetData.properties);
+        if (properties.length > 0) {
+          const randomProperty = properties[Math.floor(Math.random() * properties.length)];
+          const values = targetData.properties[randomProperty];
+          if (values.length > 0) {
+            const randomValue = values[Math.floor(Math.random() * values.length)];
+            
+            // Format hint based on property type
+            switch(randomProperty) {
+              case 'species':
+                return `It's a type of ${randomValue}.`;
+              case 'habitat':
+                return `It can be found in ${randomValue}.`;
+              case 'features':
+                return `It has ${randomValue}.`;
+              case 'country':
+                return `It's from ${randomValue}.`;
+              case 'ingredients':
+                return `It contains ${randomValue}.`;
+              case 'region':
+                return `It's located in ${randomValue}.`;
+              case 'language':
+                return `They speak ${randomValue} there.`;
+              case 'type':
+                return `It's a ${randomValue}.`;
+              case 'equipment':
+                return `It uses a ${randomValue}.`;
+              case 'genre':
+                return `It's a ${randomValue} movie.`;
+              case 'director':
+                return `It was directed by ${randomValue}.`;
+              default:
+                return `Its ${randomProperty} is ${randomValue}.`;
+            }
+          }
+        }
+        break;
+      
+      case 2: // First letter hint
+        return `It starts with the letter "${targetWord[0].toUpperCase()}".`;
+    }
+  }
+  
+  // Fallback hints if we couldn't generate a semantic hint
+  const genericHints = [
+    `It has ${targetWord.length} letters.`,
+    `The first letter is "${targetWord[0].toUpperCase()}".`,
+    `The last letter is "${targetWord[targetWord.length - 1].toUpperCase()}".`
+  ];
+  
+  return genericHints[Math.floor(Math.random() * genericHints.length)];
+};
+
+// Select a random word from a category
+const getRandomWord = (categoryId: string): string => {
+  const category = categories.find(c => c.id === categoryId);
+  
+  // Hardcoded words for testing until we have full word lists in categories
+  const wordLists: Record<string, string[]> = {
+    'food': Object.keys(foodDatabase),
+    'animals': Object.keys(animalsDatabase),
+    'countries': Object.keys(countriesDatabase),
+    'sports': Object.keys(sportsDatabase),
+    'movies': Object.keys(moviesDatabase),
+    'celebrities': ['beyonce', 'einstein', 'shakespeare', 'madonna', 'picasso'],
+    'technology': ['computer', 'smartphone', 'internet', 'robot', 'satellite'],
+    'music': ['piano', 'guitar', 'orchestra', 'concert', 'symphony'],
+    'nature': ['mountain', 'forest', 'river', 'ocean', 'desert'],
+    'vehicles': ['car', 'airplane', 'bicycle', 'submarine', 'helicopter'],
+    'professions': ['doctor', 'teacher', 'engineer', 'chef', 'astronaut'],
+    'fruits': ['apple', 'banana', 'orange', 'strawberry', 'watermelon']
+  };
+  
+  const words = category?.wordList || wordLists[categoryId] || ['default'];
+  
+  return words[Math.floor(Math.random() * words.length)];
+};
+
+// The main game hook
 export const useGame = (categoryId: string, mode: GameMode) => {
+  const [gameState, setGameState] = useState<GameState>({
+    categoryId,
+    mode,
+    targetWord: getRandomWord(categoryId),
+    guesses: [],
+    isGameOver: false,
+    isWon: false,
+    startTime: Date.now(),
+    endTime: null,
+    timeLimit: mode === 'speedrun' ? 60 : null, // 60 seconds for speedrun mode
+    wordsGuessed: 0,
+    hintsEnabled: false,
+    currentHint: null
+  });
+  
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(
+    mode === 'speedrun' ? 60 : null
+  );
+  
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Initialize the game
+  useEffect(() => {
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    // Set up timer for speedrun mode
+    if (mode === 'speedrun') {
+      timerRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev === null || prev <= 0) {
+            // Game over when time runs out
+            setGameState(state => ({
+              ...state,
+              isGameOver: true,
+              endTime: Date.now()
+            }));
+            
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+            }
+            
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    // Cleanup the timer when component unmounts
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [mode]);
+  
+  // Get elapsed time in seconds
+  const getElapsedTime = useCallback(() => {
+    if (gameState.endTime) {
+      return Math.floor((gameState.endTime - gameState.startTime) / 1000);
+    }
+    return Math.floor((Date.now() - gameState.startTime) / 1000);
+  }, [gameState.startTime, gameState.endTime]);
+  
+  // Handle user guess submission
+  const submitGuess = useCallback((guessWord: string) => {
+    if (gameState.isGameOver) {
+      return;
+    }
+    
+    // Validate the word
+    if (!isValidWord(guessWord)) {
+      toast.error("Please enter a valid word.");
+      return;
+    }
+    
+    // Check if word was already guessed
+    if (gameState.guesses.some(g => g.word.toLowerCase() === guessWord.toLowerCase())) {
+      toast.error("You already guessed that word!");
+      return;
+    }
+    
+    // Calculate proximity
+    const targetWord = gameState.targetWord;
+    const proximity = calculateSemanticProximity(guessWord, targetWord, categoryId);
+    
+    // Create new guess
+    const newGuess = { word: guessWord, proximity };
+    
+    setGameState(state => {
+      // Check for win condition
+      let isWon = false;
+      let endTime = state.endTime;
+      
+      if (guessWord.toLowerCase() === targetWord.toLowerCase()) {
+        isWon = true;
+        endTime = Date.now();
+        
+        // For speedrun mode, increment word count and set new target
+        if (state.mode === 'speedrun') {
+          const newWordsGuessed = state.wordsGuessed + 1;
+          const newTargetWord = getRandomWord(categoryId);
+          
+          return {
+            ...state,
+            targetWord: newTargetWord,
+            guesses: [],
+            wordsGuessed: newWordsGuessed,
+            currentHint: null
+          };
+        }
+      }
+      
+      // For classic mode, update game state with new guess
+      const updatedGuesses = [...state.guesses, newGuess];
+      
+      // Check if we should generate a hint
+      let currentHint = state.currentHint;
+      if (state.hintsEnabled && updatedGuesses.length % 15 === 0 && !isWon) {
+        currentHint = generateHint(targetWord, categoryId);
+        toast.info(`Hint: ${currentHint}`);
+      }
+      
+      return {
+        ...state,
+        guesses: updatedGuesses,
+        isGameOver: isWon && state.mode !== 'speedrun',
+        isWon,
+        endTime,
+        currentHint
+      };
+    });
+  }, [gameState, categoryId]);
+  
+  // Toggle hints on/off
+  const toggleHints = useCallback(() => {
+    setGameState(state => ({
+      ...state,
+      hintsEnabled: !state.hintsEnabled,
+      currentHint: null // Clear current hint when toggling
+    }));
+    
+    toast.info(gameState.hintsEnabled 
+      ? "Hints disabled" 
+      : "Hints enabled - you'll get a hint every 15 guesses");
+      
+  }, [gameState.hintsEnabled]);
+  
   return {
-    gameState: {
-      categoryId,
-      mode,
-      targetWord: '',
-      guesses: [],
-      isGameOver: false,
-      isWon: false,
-      startTime: Date.now(),
-      endTime: null,
-      timeLimit: mode === 'speedrun' ? 60 : null,
-      wordsGuessed: 0,
-      hintsEnabled: false,
-      currentHint: null
-    },
-    timeRemaining: mode === 'speedrun' ? 60 : null,
-    submitGuess: (guess: string) => {},
-    getElapsedTime: () => 0,
-    toggleHints: () => {}
+    gameState,
+    timeRemaining,
+    submitGuess,
+    getElapsedTime,
+    toggleHints
   };
 };
