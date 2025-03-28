@@ -116,17 +116,151 @@ const isValidWord = (word: string): boolean => {
   return true;
 };
 
+// Food metadata for improved proximity calculation
+interface FoodData {
+  name: string;
+  country: string[];
+  ingredients: string[];
+}
+
+// Food database with country of origin and main ingredients
+const foodDatabase: Record<string, FoodData> = {
+  'pizza': {
+    name: 'pizza',
+    country: ['italy', 'italian'],
+    ingredients: ['dough', 'cheese', 'tomato', 'sauce', 'flour']
+  },
+  'burger': {
+    name: 'burger',
+    country: ['usa', 'american', 'germany', 'german'],
+    ingredients: ['beef', 'bun', 'bread', 'meat', 'lettuce', 'tomato', 'cheese']
+  },
+  'pasta': {
+    name: 'pasta',
+    country: ['italy', 'italian'],
+    ingredients: ['flour', 'egg', 'water', 'wheat', 'dough']
+  },
+  'sushi': {
+    name: 'sushi',
+    country: ['japan', 'japanese'],
+    ingredients: ['rice', 'fish', 'seaweed', 'nori', 'vinegar', 'seafood']
+  },
+  'taco': {
+    name: 'taco',
+    country: ['mexico', 'mexican'],
+    ingredients: ['tortilla', 'corn', 'meat', 'cheese', 'lettuce', 'tomato', 'beans']
+  },
+  'sandwich': {
+    name: 'sandwich',
+    country: ['england', 'english', 'britain', 'british'],
+    ingredients: ['bread', 'meat', 'cheese', 'lettuce', 'tomato', 'spread']
+  },
+  'chocolate': {
+    name: 'chocolate',
+    country: ['switzerland', 'swiss', 'belgium', 'belgian'],
+    ingredients: ['cocoa', 'sugar', 'milk', 'butter']
+  },
+  'cookie': {
+    name: 'cookie',
+    country: ['usa', 'american'],
+    ingredients: ['flour', 'sugar', 'butter', 'egg', 'chocolate']
+  },
+  'salad': {
+    name: 'salad',
+    country: ['greece', 'greek', 'global'],
+    ingredients: ['lettuce', 'vegetables', 'greens', 'dressing', 'tomato', 'cucumber']
+  },
+  'steak': {
+    name: 'steak',
+    country: ['usa', 'american', 'argentina', 'argentinian'],
+    ingredients: ['beef', 'meat', 'salt', 'pepper', 'butter']
+  },
+  'pancake': {
+    name: 'pancake',
+    country: ['usa', 'american', 'france', 'french'],
+    ingredients: ['flour', 'milk', 'egg', 'butter', 'sugar', 'syrup']
+  },
+  'waffle': {
+    name: 'waffle',
+    country: ['belgium', 'belgian'],
+    ingredients: ['flour', 'egg', 'milk', 'butter', 'sugar', 'syrup']
+  },
+  'donut': {
+    name: 'donut',
+    country: ['usa', 'american'],
+    ingredients: ['flour', 'sugar', 'yeast', 'oil', 'glaze', 'dough']
+  },
+  'icecream': {
+    name: 'icecream',
+    country: ['italy', 'italian', 'global'],
+    ingredients: ['milk', 'cream', 'sugar', 'flavor', 'egg']
+  },
+  'cupcake': {
+    name: 'cupcake',
+    country: ['usa', 'american', 'england', 'english'],
+    ingredients: ['flour', 'sugar', 'butter', 'egg', 'frosting', 'cake']
+  }
+};
+
 // Calculate how close two words are (0-100)
-const calculateProximity = (word1: string, word2: string): number => {
+const calculateProximity = (word1: string, word2: string, categoryId?: string): number => {
   // Simple algorithm for now - can be improved later
   // 1. Exact match = 100
   if (word1.toLowerCase() === word2.toLowerCase()) return 100;
   
+  // Special case for food category with enhanced proximity calculation
+  if (categoryId === 'food') {
+    const foodWord1 = word1.toLowerCase();
+    const foodWord2 = word2.toLowerCase();
+    
+    // Check if both foods are in our database
+    const food1Data = foodDatabase[foodWord1];
+    const food2Data = foodDatabase[foodWord2];
+    
+    // If we have data for both foods, use enhanced calculation
+    if (food1Data && food2Data) {
+      // Calculate country similarity
+      let countryMatch = 0;
+      food1Data.country.forEach(country1 => {
+        if (food2Data.country.some(country2 => country1 === country2)) {
+          countryMatch = 1;
+        }
+      });
+      
+      // Calculate ingredient similarity
+      let commonIngredients = 0;
+      food1Data.ingredients.forEach(ingredient1 => {
+        if (food2Data.ingredients.some(ingredient2 => ingredient1 === ingredient2)) {
+          commonIngredients++;
+        }
+      });
+      
+      const ingredientSimilarity = commonIngredients / Math.max(food1Data.ingredients.length, food2Data.ingredients.length);
+      
+      // Calculate standard text similarity
+      const standardSimilarity = calculateStandardProximity(foodWord1, foodWord2);
+      
+      // Weight the factors (text: 40%, country: 30%, ingredients: 30%)
+      const enhancedScore = (standardSimilarity * 0.4) + (countryMatch * 30) + (ingredientSimilarity * 30);
+      
+      return Math.round(enhancedScore);
+    }
+  }
+  
+  // For non-food categories or foods not in database, use standard proximity calculation
+  return calculateStandardProximity(word1, word2);
+};
+
+// Standard proximity calculation for all categories
+const calculateStandardProximity = (word1: string, word2: string): number => {
+  const normalizedWord1 = word1.toLowerCase();
+  const normalizedWord2 = word2.toLowerCase();
+  
   // 2. Check for common prefix
   let commonPrefixLength = 0;
-  const minLength = Math.min(word1.length, word2.length);
+  const minLength = Math.min(normalizedWord1.length, normalizedWord2.length);
   for (let i = 0; i < minLength; i++) {
-    if (word1[i].toLowerCase() === word2[i].toLowerCase()) {
+    if (normalizedWord1[i] === normalizedWord2[i]) {
       commonPrefixLength++;
     } else {
       break;
@@ -134,11 +268,11 @@ const calculateProximity = (word1: string, word2: string): number => {
   }
   
   // 3. Check for length similarity (as percentage)
-  const lengthRatio = Math.min(word1.length, word2.length) / Math.max(word1.length, word2.length);
+  const lengthRatio = Math.min(normalizedWord1.length, normalizedWord2.length) / Math.max(normalizedWord1.length, normalizedWord2.length);
   
   // 4. Check for common letters
-  const letters1 = new Set(word1.toLowerCase().split(''));
-  const letters2 = new Set(word2.toLowerCase().split(''));
+  const letters1 = new Set(normalizedWord1.split(''));
+  const letters2 = new Set(normalizedWord2.split(''));
   let commonLetters = 0;
   letters1.forEach(letter => {
     if (letters2.has(letter)) commonLetters++;
@@ -354,7 +488,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
       return;
     }
     
-    const proximity = calculateProximity(normalizedGuess, gameState.targetWord);
+    const proximity = calculateProximity(normalizedGuess, gameState.targetWord, gameState.categoryId);
     const isCorrect = proximity === 100;
     
     // Update game state
@@ -404,7 +538,7 @@ export const useGame = (categoryId: string, mode: GameMode) => {
     if (isCorrect && gameState.mode === 'classic') {
       toast.success('You guessed the word!');
     }
-  }, [gameState.isGameOver, gameState.targetWord, gameState.mode, gameState.hintsEnabled, startNewRound]);
+  }, [gameState.isGameOver, gameState.targetWord, gameState.mode, gameState.hintsEnabled, gameState.categoryId, startNewRound]);
   
   const getElapsedTime = useCallback(() => {
     if (gameState.endTime) {

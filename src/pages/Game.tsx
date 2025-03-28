@@ -1,11 +1,11 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Info } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import ProximityBar from '../components/ProximityBar';
 import { Switch } from '../components/ui/switch';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 import useGame, { GameMode } from '../hooks/useGame';
 import { categories } from '../data/categories';
 
@@ -33,7 +33,6 @@ const Game = () => {
   }, [gameState.isGameOver, gameState.isWon, navigate, categoryId, mode, getElapsedTime, gameState.wordsGuessed]);
   
   useEffect(() => {
-    // Focus input on mount
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -45,15 +44,13 @@ const Game = () => {
     submitGuess(guess);
     setGuess('');
     
-    // Refocus input
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
   
-  // The guesses are already sorted in the useGame hook
   const sortedGuesses = gameState.guesses;
-  
+
   return (
     <div className="min-h-screen flex flex-col bg-goodguess-background">
       <NavBar />
@@ -66,6 +63,22 @@ const Game = () => {
             className="text-lg font-semibold"
           >
             {category?.name}
+            {categoryId === 'food' && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="ml-2 cursor-help inline-flex">
+                      <Info size={16} className="text-goodguess-primary" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm max-w-xs">
+                      For food items, guesses are matched by ingredients and country of origin in addition to word similarity!
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </motion.div>
           
           <motion.div
