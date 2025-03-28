@@ -7,8 +7,7 @@ import NavBar from '../components/NavBar';
 import ProximityBar from '../components/ProximityBar';
 import { Switch } from '../components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
-import { useGame } from '../hooks/useGame';
-import { GameMode } from '../types/game';
+import { useGame, GameMode } from '../hooks/useGame';
 import { categories } from '../data/categories';
 
 const Game = () => {
