@@ -51,6 +51,37 @@ const Game = () => {
   
   const sortedGuesses = gameState.guesses;
 
+  const getCategoryTooltipContent = () => {
+    switch(categoryId) {
+      case 'food':
+        return "For food items, guesses are matched by ingredients and country of origin in addition to word similarity!";
+      case 'animals':
+        return "For animals, guesses are matched by species, habitat, and features in addition to word similarity!";
+      case 'countries':
+        return "For countries, guesses are matched by region, language, and cultural features in addition to word similarity!";
+      case 'sports':
+        return "For sports, guesses are matched by type, equipment, and characteristics in addition to word similarity!";
+      case 'movies':
+        return "For movies, guesses are matched by genre, directors, and themes in addition to word similarity!";
+      case 'celebrities':
+        return "For celebrities, guesses are matched by profession, nationality, and accomplishments in addition to word similarity!";
+      case 'technology':
+        return "For technology items, guesses are matched by function, type, and features in addition to word similarity!";
+      case 'music':
+        return "For music terms, guesses are matched by genre, instrument type, and characteristics in addition to word similarity!";
+      case 'nature':
+        return "For nature terms, guesses are matched by type, location, and properties in addition to word similarity!";
+      case 'vehicles':
+        return "For vehicles, guesses are matched by type, use, and characteristics in addition to word similarity!";
+      case 'professions':
+        return "For professions, guesses are matched by field, skills, and workplace in addition to word similarity!";
+      case 'fruits':
+        return "For fruits, guesses are matched by type, origin, and properties in addition to word similarity!";
+      default:
+        return "Guesses are matched by word similarity!";
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-goodguess-background">
       <NavBar />
@@ -63,22 +94,20 @@ const Game = () => {
             className="text-lg font-semibold"
           >
             {category?.name}
-            {categoryId === 'food' && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="ml-2 cursor-help inline-flex">
-                      <Info size={16} className="text-goodguess-primary" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-sm max-w-xs">
-                      For food items, guesses are matched by ingredients and country of origin in addition to word similarity!
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="ml-2 cursor-help inline-flex">
+                    <Info size={16} className="text-goodguess-primary" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm max-w-xs">
+                    {getCategoryTooltipContent()}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </motion.div>
           
           <motion.div

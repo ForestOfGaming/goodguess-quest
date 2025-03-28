@@ -117,464 +117,675 @@ const isValidWord = (word: string): boolean => {
 };
 
 // Food metadata for improved proximity calculation
-interface FoodData {
+interface SemanticData {
   name: string;
-  country: string[];
-  ingredients: string[];
+  related: string[];
+  properties: Record<string, string[]>;
 }
 
 // Food database with country of origin and main ingredients
-const foodDatabase: Record<string, FoodData> = {
+const foodDatabase: Record<string, SemanticData> = {
   'pizza': {
     name: 'pizza',
-    country: ['italy', 'italian'],
-    ingredients: ['dough', 'cheese', 'tomato', 'sauce', 'flour']
+    related: ['flatbread', 'pie'],
+    properties: {
+      country: ['italy', 'italian'],
+      ingredients: ['dough', 'cheese', 'tomato', 'sauce', 'flour']
+    }
   },
   'burger': {
     name: 'burger',
-    country: ['usa', 'american', 'germany', 'german'],
-    ingredients: ['beef', 'bun', 'bread', 'meat', 'lettuce', 'tomato', 'cheese']
+    related: ['sandwich', 'hamburger'],
+    properties: {
+      country: ['usa', 'american', 'germany', 'german'],
+      ingredients: ['beef', 'bun', 'bread', 'meat', 'lettuce', 'tomato', 'cheese']
+    }
   },
   'pasta': {
     name: 'pasta',
-    country: ['italy', 'italian'],
-    ingredients: ['flour', 'egg', 'water', 'wheat', 'dough']
+    related: ['noodles', 'spaghetti'],
+    properties: {
+      country: ['italy', 'italian'],
+      ingredients: ['flour', 'egg', 'water', 'wheat', 'dough']
+    }
   },
   'sushi': {
     name: 'sushi',
-    country: ['japan', 'japanese'],
-    ingredients: ['rice', 'fish', 'seaweed', 'nori', 'vinegar', 'seafood']
+    related: ['maki', 'nigiri', 'sashimi'],
+    properties: {
+      country: ['japan', 'japanese'],
+      ingredients: ['rice', 'fish', 'seaweed', 'nori', 'vinegar', 'seafood']
+    }
   },
   'taco': {
     name: 'taco',
-    country: ['mexico', 'mexican'],
-    ingredients: ['tortilla', 'corn', 'meat', 'cheese', 'lettuce', 'tomato', 'beans']
+    related: ['burrito', 'tortilla'],
+    properties: {
+      country: ['mexico', 'mexican'],
+      ingredients: ['tortilla', 'corn', 'meat', 'cheese', 'lettuce', 'tomato', 'beans']
+    }
   },
   'sandwich': {
     name: 'sandwich',
-    country: ['england', 'english', 'britain', 'british'],
-    ingredients: ['bread', 'meat', 'cheese', 'lettuce', 'tomato', 'spread']
+    related: ['burger', 'sub', 'wrap'],
+    properties: {
+      country: ['england', 'english', 'britain', 'british'],
+      ingredients: ['bread', 'meat', 'cheese', 'lettuce', 'tomato', 'spread']
+    }
   },
   'chocolate': {
     name: 'chocolate',
-    country: ['switzerland', 'swiss', 'belgium', 'belgian'],
-    ingredients: ['cocoa', 'sugar', 'milk', 'butter']
+    related: ['candy', 'cocoa', 'dessert'],
+    properties: {
+      country: ['switzerland', 'swiss', 'belgium', 'belgian'],
+      ingredients: ['cocoa', 'sugar', 'milk', 'butter']
+    }
   },
   'cookie': {
     name: 'cookie',
-    country: ['usa', 'american'],
-    ingredients: ['flour', 'sugar', 'butter', 'egg', 'chocolate']
+    related: ['biscuit', 'dessert', 'sweet'],
+    properties: {
+      country: ['usa', 'american'],
+      ingredients: ['flour', 'sugar', 'butter', 'egg', 'chocolate']
+    }
   },
   'salad': {
     name: 'salad',
-    country: ['greece', 'greek', 'global'],
-    ingredients: ['lettuce', 'vegetables', 'greens', 'dressing', 'tomato', 'cucumber']
+    related: ['vegetables', 'greens', 'healthy'],
+    properties: {
+      country: ['greece', 'greek', 'global'],
+      ingredients: ['lettuce', 'vegetables', 'greens', 'dressing', 'tomato', 'cucumber']
+    }
   },
   'steak': {
     name: 'steak',
-    country: ['usa', 'american', 'argentina', 'argentinian'],
-    ingredients: ['beef', 'meat', 'salt', 'pepper', 'butter']
+    related: ['beef', 'meat', 'protein'],
+    properties: {
+      country: ['usa', 'american', 'argentina', 'argentinian'],
+      ingredients: ['beef', 'meat', 'salt', 'pepper', 'butter']
+    }
   },
   'pancake': {
     name: 'pancake',
-    country: ['usa', 'american', 'france', 'french'],
-    ingredients: ['flour', 'milk', 'egg', 'butter', 'sugar', 'syrup']
+    related: ['waffle', 'breakfast', 'flat'],
+    properties: {
+      country: ['usa', 'american', 'france', 'french'],
+      ingredients: ['flour', 'milk', 'egg', 'butter', 'sugar', 'syrup']
+    }
   },
   'waffle': {
     name: 'waffle',
-    country: ['belgium', 'belgian'],
-    ingredients: ['flour', 'egg', 'milk', 'butter', 'sugar', 'syrup']
+    related: ['pancake', 'breakfast', 'sweet'],
+    properties: {
+      country: ['belgium', 'belgian'],
+      ingredients: ['flour', 'egg', 'milk', 'butter', 'sugar', 'syrup']
+    }
   },
   'donut': {
     name: 'donut',
-    country: ['usa', 'american'],
-    ingredients: ['flour', 'sugar', 'yeast', 'oil', 'glaze', 'dough']
+    related: ['pastry', 'dessert', 'sweet'],
+    properties: {
+      country: ['usa', 'american'],
+      ingredients: ['flour', 'sugar', 'yeast', 'oil', 'glaze', 'dough']
+    }
   },
   'icecream': {
     name: 'icecream',
-    country: ['italy', 'italian', 'global'],
-    ingredients: ['milk', 'cream', 'sugar', 'flavor', 'egg']
+    related: ['dessert', 'frozen', 'sweet'],
+    properties: {
+      country: ['italy', 'italian', 'global'],
+      ingredients: ['milk', 'cream', 'sugar', 'flavor', 'egg']
+    }
   },
   'cupcake': {
     name: 'cupcake',
-    country: ['usa', 'american', 'england', 'english'],
-    ingredients: ['flour', 'sugar', 'butter', 'egg', 'frosting', 'cake']
+    related: ['cake', 'dessert', 'sweet'],
+    properties: {
+      country: ['usa', 'american', 'england', 'english'],
+      ingredients: ['flour', 'sugar', 'butter', 'egg', 'frosting', 'cake']
+    }
+  }
+};
+
+// Animals database with species, habitat, and features
+const animalsDatabase: Record<string, SemanticData> = {
+  'elephant': {
+    name: 'elephant',
+    related: ['mammoth', 'pachyderm'],
+    properties: {
+      species: ['mammal', 'herbivore', 'pachyderm'],
+      habitat: ['savanna', 'forest', 'jungle'],
+      features: ['trunk', 'tusks', 'large', 'gray']
+    }
+  },
+  'tiger': {
+    name: 'tiger',
+    related: ['cat', 'lion', 'predator'],
+    properties: {
+      species: ['mammal', 'carnivore', 'feline', 'big cat'],
+      habitat: ['jungle', 'forest', 'asia'],
+      features: ['stripes', 'orange', 'black', 'predator']
+    }
+  },
+  'lion': {
+    name: 'lion',
+    related: ['cat', 'tiger', 'predator'],
+    properties: {
+      species: ['mammal', 'carnivore', 'feline', 'big cat'],
+      habitat: ['savanna', 'grassland', 'africa'],
+      features: ['mane', 'tan', 'predator', 'pride']
+    }
+  },
+  'zebra': {
+    name: 'zebra',
+    related: ['horse', 'equine'],
+    properties: {
+      species: ['mammal', 'herbivore', 'equine'],
+      habitat: ['savanna', 'grassland', 'africa'],
+      features: ['stripes', 'black', 'white', 'hooves']
+    }
+  },
+  'giraffe': {
+    name: 'giraffe',
+    related: ['herbivore', 'tall'],
+    properties: {
+      species: ['mammal', 'herbivore'],
+      habitat: ['savanna', 'grassland', 'africa'],
+      features: ['long neck', 'spots', 'tall', 'yellow', 'brown']
+    }
+  },
+  'monkey': {
+    name: 'monkey',
+    related: ['ape', 'primate', 'chimpanzee'],
+    properties: {
+      species: ['mammal', 'omnivore', 'primate'],
+      habitat: ['jungle', 'forest', 'tropics'],
+      features: ['tail', 'climb', 'agile', 'social']
+    }
+  },
+  'dolphin': {
+    name: 'dolphin',
+    related: ['whale', 'porpoise', 'cetacean'],
+    properties: {
+      species: ['mammal', 'carnivore', 'cetacean'],
+      habitat: ['ocean', 'sea', 'marine'],
+      features: ['intelligent', 'fins', 'tail', 'echolocation']
+    }
+  },
+  'penguin': {
+    name: 'penguin',
+    related: ['bird', 'seabird'],
+    properties: {
+      species: ['bird', 'carnivore', 'flightless'],
+      habitat: ['antarctica', 'cold', 'ice', 'ocean'],
+      features: ['black', 'white', 'wings', 'waddle', 'swim']
+    }
+  },
+  'koala': {
+    name: 'koala',
+    related: ['marsupial', 'bear-like'],
+    properties: {
+      species: ['mammal', 'herbivore', 'marsupial'],
+      habitat: ['australia', 'trees', 'forests'],
+      features: ['eucalyptus', 'pouch', 'gray', 'furry']
+    }
+  },
+  'kangaroo': {
+    name: 'kangaroo',
+    related: ['marsupial', 'wallaby'],
+    properties: {
+      species: ['mammal', 'herbivore', 'marsupial'],
+      habitat: ['australia', 'grassland'],
+      features: ['pouch', 'hop', 'jump', 'tail', 'powerful legs']
+    }
+  },
+  'cheetah': {
+    name: 'cheetah',
+    related: ['cat', 'leopard', 'feline'],
+    properties: {
+      species: ['mammal', 'carnivore', 'feline', 'big cat'],
+      habitat: ['savanna', 'grassland', 'africa'],
+      features: ['spots', 'fast', 'slender', 'tan']
+    }
+  },
+  'rhinoceros': {
+    name: 'rhinoceros',
+    related: ['rhino', 'pachyderm'],
+    properties: {
+      species: ['mammal', 'herbivore', 'pachyderm'],
+      habitat: ['savanna', 'grassland', 'africa', 'asia'],
+      features: ['horn', 'thick skin', 'large', 'gray']
+    }
+  },
+  'hippopotamus': {
+    name: 'hippopotamus',
+    related: ['hippo', 'river horse'],
+    properties: {
+      species: ['mammal', 'herbivore'],
+      habitat: ['river', 'lake', 'water', 'africa'],
+      features: ['large mouth', 'water', 'large', 'gray']
+    }
+  },
+  'crocodile': {
+    name: 'crocodile',
+    related: ['alligator', 'reptile', 'predator'],
+    properties: {
+      species: ['reptile', 'carnivore', 'predator'],
+      habitat: ['river', 'swamp', 'water', 'tropics'],
+      features: ['scales', 'teeth', 'tail', 'green']
+    }
+  },
+  'panda': {
+    name: 'panda',
+    related: ['bear', 'bamboo'],
+    properties: {
+      species: ['mammal', 'herbivore', 'bear'],
+      habitat: ['forest', 'mountain', 'china'],
+      features: ['black', 'white', 'bamboo', 'cute']
+    }
   }
 };
 
-// Calculate how close two words are (0-100)
-const calculateProximity = (word1: string, word2: string, categoryId?: string): number => {
-  // Simple algorithm for now - can be improved later
-  // 1. Exact match = 100
-  if (word1.toLowerCase() === word2.toLowerCase()) return 100;
-  
-  // Special case for food category with enhanced proximity calculation
-  if (categoryId === 'food') {
-    const foodWord1 = word1.toLowerCase();
-    const foodWord2 = word2.toLowerCase();
-    
-    // Check if both foods are in our database
-    const food1Data = foodDatabase[foodWord1];
-    const food2Data = foodDatabase[foodWord2];
-    
-    // If we have data for both foods, use enhanced calculation
-    if (food1Data && food2Data) {
-      // Calculate country similarity
-      let countryMatch = 0;
-      food1Data.country.forEach(country1 => {
-        if (food2Data.country.some(country2 => country1 === country2)) {
-          countryMatch = 1;
-        }
-      });
-      
-      // Calculate ingredient similarity
-      let commonIngredients = 0;
-      food1Data.ingredients.forEach(ingredient1 => {
-        if (food2Data.ingredients.some(ingredient2 => ingredient1 === ingredient2)) {
-          commonIngredients++;
-        }
-      });
-      
-      const ingredientSimilarity = commonIngredients / Math.max(food1Data.ingredients.length, food2Data.ingredients.length);
-      
-      // Calculate standard text similarity
-      const standardSimilarity = calculateStandardProximity(foodWord1, foodWord2);
-      
-      // Weight the factors (text: 40%, country: 30%, ingredients: 30%)
-      const enhancedScore = (standardSimilarity * 0.4) + (countryMatch * 30) + (ingredientSimilarity * 30);
-      
-      return Math.round(enhancedScore);
+// Countries database with region, language, and features
+const countriesDatabase: Record<string, SemanticData> = {
+  'france': {
+    name: 'france',
+    related: ['europe', 'european union'],
+    properties: {
+      region: ['europe', 'western europe'],
+      language: ['french', 'romance'],
+      features: ['eiffel tower', 'wine', 'fashion', 'cuisine', 'art']
+    }
+  },
+  'japan': {
+    name: 'japan',
+    related: ['asia', 'island nation'],
+    properties: {
+      region: ['asia', 'east asia'],
+      language: ['japanese'],
+      features: ['sushi', 'anime', 'technology', 'cherry blossoms', 'mount fuji']
+    }
+  },
+  'brazil': {
+    name: 'brazil',
+    related: ['south america', 'amazon'],
+    properties: {
+      region: ['south america', 'latin america'],
+      language: ['portuguese'],
+      features: ['amazon', 'carnival', 'soccer', 'beaches', 'rainforest']
+    }
+  },
+  'australia': {
+    name: 'australia',
+    related: ['oceania', 'down under'],
+    properties: {
+      region: ['oceania', 'australia'],
+      language: ['english'],
+      features: ['kangaroo', 'koala', 'outback', 'barrier reef', 'sydney opera house']
+    }
+  },
+  'canada': {
+    name: 'canada',
+    related: ['north america', 'maple leaf'],
+    properties: {
+      region: ['north america'],
+      language: ['english', 'french'],
+      features: ['maple syrup', 'hockey', 'mountains', 'lakes', 'forests']
+    }
+  },
+  'mexico': {
+    name: 'mexico',
+    related: ['north america', 'latin america'],
+    properties: {
+      region: ['north america', 'latin america'],
+      language: ['spanish'],
+      features: ['tacos', 'mariachi', 'beaches', 'pyramids', 'tequila']
+    }
+  },
+  'germany': {
+    name: 'germany',
+    related: ['europe', 'european union'],
+    properties: {
+      region: ['europe', 'western europe'],
+      language: ['german', 'germanic'],
+      features: ['beer', 'cars', 'engineering', 'castles', 'pretzels']
+    }
+  },
+  'italy': {
+    name: 'italy',
+    related: ['europe', 'european union'],
+    properties: {
+      region: ['europe', 'southern europe'],
+      language: ['italian', 'romance'],
+      features: ['pizza', 'pasta', 'art', 'rome', 'colosseum']
+    }
+  },
+  'spain': {
+    name: 'spain',
+    related: ['europe', 'european union'],
+    properties: {
+      region: ['europe', 'southern europe'],
+      language: ['spanish', 'romance'],
+      features: ['paella', 'flamenco', 'bullfighting', 'beaches', 'siesta']
+    }
+  },
+  'china': {
+    name: 'china',
+    related: ['asia', 'east asia'],
+    properties: {
+      region: ['asia', 'east asia'],
+      language: ['chinese', 'mandarin'],
+      features: ['great wall', 'kung fu', 'dragons', 'pandas', 'rice']
+    }
+  },
+  'india': {
+    name: 'india',
+    related: ['asia', 'south asia'],
+    properties: {
+      region: ['asia', 'south asia'],
+      language: ['hindi', 'english', 'bengali'],
+      features: ['taj mahal', 'curry', 'bollywood', 'yoga', 'spices']
+    }
+  },
+  'egypt': {
+    name: 'egypt',
+    related: ['africa', 'middle east'],
+    properties: {
+      region: ['africa', 'north africa', 'middle east'],
+      language: ['arabic'],
+      features: ['pyramids', 'sphinx', 'nile', 'pharaohs', 'desert']
+    }
+  },
+  'kenya': {
+    name: 'kenya',
+    related: ['africa', 'east africa'],
+    properties: {
+      region: ['africa', 'east africa'],
+      language: ['swahili', 'english'],
+      features: ['safari', 'wildlife', 'savanna', 'marathon runners', 'masai mara']
+    }
+  },
+  'argentina': {
+    name: 'argentina',
+    related: ['south america', 'latin america'],
+    properties: {
+      region: ['south america', 'latin america'],
+      language: ['spanish'],
+      features: ['tango', 'beef', 'pampas', 'soccer', 'patagonia']
+    }
+  },
+  'thailand': {
+    name: 'thailand',
+    related: ['asia', 'southeast asia'],
+    properties: {
+      region: ['asia', 'southeast asia'],
+      language: ['thai'],
+      features: ['beaches', 'temples', 'elephants', 'pad thai', 'bangkok']
     }
   }
-  
-  // For non-food categories or foods not in database, use standard proximity calculation
-  return calculateStandardProximity(word1, word2);
 };
 
-// Standard proximity calculation for all categories
-const calculateStandardProximity = (word1: string, word2: string): number => {
-  const normalizedWord1 = word1.toLowerCase();
-  const normalizedWord2 = word2.toLowerCase();
-  
-  // 2. Check for common prefix
-  let commonPrefixLength = 0;
-  const minLength = Math.min(normalizedWord1.length, normalizedWord2.length);
-  for (let i = 0; i < minLength; i++) {
-    if (normalizedWord1[i] === normalizedWord2[i]) {
-      commonPrefixLength++;
-    } else {
-      break;
+// Sports database with type, equipment, and features
+const sportsDatabase: Record<string, SemanticData> = {
+  'soccer': {
+    name: 'soccer',
+    related: ['football', 'sport', 'team sport'],
+    properties: {
+      type: ['team sport', 'ball sport', 'outdoor'],
+      equipment: ['ball', 'goal', 'cleats', 'field'],
+      features: ['worldwide', 'popular', 'world cup', 'leagues']
+    }
+  },
+  'basketball': {
+    name: 'basketball',
+    related: ['hoops', 'sport', 'team sport'],
+    properties: {
+      type: ['team sport', 'ball sport', 'indoor', 'outdoor'],
+      equipment: ['ball', 'hoop', 'court', 'backboard'],
+      features: ['nba', 'jumping', 'scoring', 'fast-paced']
+    }
+  },
+  'tennis': {
+    name: 'tennis',
+    related: ['racket sport', 'sport'],
+    properties: {
+      type: ['racket sport', 'individual sport', 'outdoor', 'indoor'],
+      equipment: ['racket', 'ball', 'net', 'court'],
+      features: ['grand slam', 'serve', 'volley', 'tournaments']
+    }
+  },
+  'baseball': {
+    name: 'baseball',
+    related: ['bat and ball', 'sport', 'team sport'],
+    properties: {
+      type: ['team sport', 'bat and ball', 'outdoor'],
+      equipment: ['bat', 'ball', 'glove', 'field', 'bases'],
+      features: ['mlb', 'innings', 'pitching', 'hitting']
+    }
+  },
+  'golf': {
+    name: 'golf',
+    related: ['club sport', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'club sport', 'outdoor'],
+      equipment: ['clubs', 'ball', 'tee', 'course'],
+      features: ['pga', 'putting', 'driving', 'holes']
+    }
+  },
+  'hockey': {
+    name: 'hockey',
+    related: ['ice sport', 'sport', 'team sport'],
+    properties: {
+      type: ['team sport', 'stick sport', 'ice sport'],
+      equipment: ['stick', 'puck', 'skates', 'rink', 'goal'],
+      features: ['nhl', 'checking', 'penalties', 'goalie']
+    }
+  },
+  'volleyball': {
+    name: 'volleyball',
+    related: ['net sport', 'sport', 'team sport'],
+    properties: {
+      type: ['team sport', 'net sport', 'indoor', 'outdoor'],
+      equipment: ['ball', 'net', 'court'],
+      features: ['spiking', 'serving', 'blocking', 'sets']
+    }
+  },
+  'swimming': {
+    name: 'swimming',
+    related: ['water sport', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'water sport', 'olympic'],
+      equipment: ['swimsuit', 'goggles', 'pool', 'water'],
+      features: ['strokes', 'races', 'laps', 'diving']
+    }
+  },
+  'cycling': {
+    name: 'cycling',
+    related: ['biking', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'endurance sport', 'outdoor'],
+      equipment: ['bicycle', 'helmet', 'road', 'track'],
+      features: ['tour de france', 'peloton', 'racing', 'stages']
+    }
+  },
+  'rugby': {
+    name: 'rugby',
+    related: ['football', 'sport', 'team sport'],
+    properties: {
+      type: ['team sport', 'contact sport', 'outdoor'],
+      equipment: ['ball', 'field', 'posts'],
+      features: ['scrums', 'tackling', 'world cup', 'tries']
+    }
+  },
+  'skiing': {
+    name: 'skiing',
+    related: ['winter sport', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'winter sport', 'outdoor'],
+      equipment: ['skis', 'poles', 'boots', 'snow', 'mountain'],
+      features: ['downhill', 'slalom', 'cross-country', 'jumps']
+    }
+  },
+  'gymnastics': {
+    name: 'gymnastics',
+    related: ['acrobatics', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'artistic sport', 'indoor'],
+      equipment: ['beam', 'bars', 'vault', 'floor', 'rings'],
+      features: ['flips', 'routines', 'flexibility', 'strength']
+    }
+  },
+  'boxing': {
+    name: 'boxing',
+    related: ['fighting', 'sport', 'combat sport'],
+    properties: {
+      type: ['combat sport', 'individual sport', 'indoor'],
+      equipment: ['gloves', 'ring', 'mouthguard'],
+      features: ['punches', 'rounds', 'knockouts', 'weight classes']
+    }
+  },
+  'surfing': {
+    name: 'surfing',
+    related: ['water sport', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'water sport', 'outdoor'],
+      equipment: ['surfboard', 'wetsuit', 'waves', 'ocean'],
+      features: ['riding waves', 'barrels', 'competitions', 'beaches']
+    }
+  },
+  'running': {
+    name: 'running',
+    related: ['track', 'sport', 'individual sport'],
+    properties: {
+      type: ['individual sport', 'endurance sport', 'outdoor', 'indoor'],
+      equipment: ['shoes', 'track', 'road'],
+      features: ['marathon', 'sprints', 'olympics', 'races']
     }
   }
-  
-  // 3. Check for length similarity (as percentage)
-  const lengthRatio = Math.min(normalizedWord1.length, normalizedWord2.length) / Math.max(normalizedWord1.length, normalizedWord2.length);
-  
-  // 4. Check for common letters
-  const letters1 = new Set(normalizedWord1.split(''));
-  const letters2 = new Set(normalizedWord2.split(''));
-  let commonLetters = 0;
-  letters1.forEach(letter => {
-    if (letters2.has(letter)) commonLetters++;
-  });
-  const commonLetterRatio = commonLetters / Math.max(letters1.size, letters2.size);
-  
-  // 5. Calculate final proximity score (weighted average)
-  const prefixScore = (commonPrefixLength / minLength) * 100;
-  const lengthScore = lengthRatio * 100;
-  const letterScore = commonLetterRatio * 100;
-  
-  return Math.round((prefixScore * 0.4) + (letterScore * 0.4) + (lengthScore * 0.2));
 };
 
-// Random words by category
-const categoryWords = {
-  animals: ['elephant', 'tiger', 'lion', 'zebra', 'giraffe', 'monkey', 'dolphin', 'penguin', 'koala', 'kangaroo', 'cheetah', 'rhinoceros', 'hippopotamus', 'crocodile', 'panda'],
-  food: ['pizza', 'burger', 'pasta', 'sushi', 'taco', 'sandwich', 'chocolate', 'cookie', 'salad', 'steak', 'pancake', 'waffle', 'donut', 'icecream', 'cupcake'],
-  countries: ['france', 'japan', 'brazil', 'australia', 'canada', 'mexico', 'germany', 'italy', 'spain', 'china', 'india', 'egypt', 'kenya', 'argentina', 'thailand'],
-  sports: ['soccer', 'basketball', 'tennis', 'baseball', 'golf', 'hockey', 'volleyball', 'swimming', 'cycling', 'rugby', 'skiing', 'gymnastics', 'boxing', 'surfing', 'running'],
-  movies: ['avatar', 'titanic', 'avengers', 'matrix', 'inception', 'frozen', 'joker', 'gladiator', 'jurassic', 'batman', 'superman', 'wonderwoman', 'starwars', 'harrypotter', 'godfather'],
-  celebrities: ['beyonce', 'madonna', 'adele', 'oprah', 'eminem', 'dicaprio', 'cruise', 'pitt', 'jolie', 'aniston', 'swift', 'ronaldo', 'messi', 'federer', 'jordan'],
-  technology: ['computer', 'smartphone', 'tablet', 'internet', 'software', 'hardware', 'robot', 'drone', 'algorithm', 'database', 'network', 'server', 'website', 'application', 'program'],
-  music: ['guitar', 'piano', 'violin', 'drums', 'saxophone', 'trumpet', 'flute', 'concert', 'album', 'singer', 'band', 'chorus', 'melody', 'rhythm', 'harmony'],
-  nature: ['mountain', 'forest', 'river', 'ocean', 'desert', 'waterfall', 'island', 'volcano', 'canyon', 'glacier', 'jungle', 'meadow', 'beach', 'cave', 'tornado'],
-  vehicles: ['car', 'truck', 'motorcycle', 'bicycle', 'airplane', 'helicopter', 'boat', 'ship', 'train', 'bus', 'submarine', 'rocket', 'tractor', 'scooter', 'ambulance'],
-  professions: ['doctor', 'teacher', 'engineer', 'lawyer', 'chef', 'architect', 'artist', 'scientist', 'writer', 'programmer', 'journalist', 'accountant', 'firefighter', 'police', 'pilot'],
-  fruits: ['apple', 'banana', 'orange', 'grape', 'strawberry', 'pineapple', 'mango', 'peach', 'watermelon', 'kiwi', 'cherry', 'lemon', 'blueberry', 'coconut', 'avocado']
-};
-
-// Generate a word that fits the given category
-const generateTargetWord = (categoryId: string): string => {
-  try {
-    // Get the category details
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) {
-      console.error('Category not found:', categoryId);
-      return 'apple'; // Fallback word
+// Movies database with genre, actors, directors and features
+const moviesDatabase: Record<string, SemanticData> = {
+  'avatar': {
+    name: 'avatar',
+    related: ['scifi', 'james cameron'],
+    properties: {
+      genre: ['scifi', 'adventure', 'action'],
+      director: ['james cameron'],
+      features: ['3d', 'aliens', 'pandora', 'visual effects', 'nature']
     }
-    
-    // Get possible words for this category
-    const possibleWords = categoryWords[categoryId as keyof typeof categoryWords] || [];
-    
-    if (possibleWords.length === 0) {
-      console.error('No words found for category:', categoryId);
-      return 'apple'; // Fallback word
+  },
+  'titanic': {
+    name: 'titanic',
+    related: ['drama', 'james cameron', 'historical'],
+    properties: {
+      genre: ['drama', 'romance', 'historical'],
+      director: ['james cameron'],
+      features: ['ship', 'disaster', 'romance', 'iceberg', 'historical']
     }
-    
-    // Select a random word from the possible words
-    const randomIndex = Math.floor(Math.random() * possibleWords.length);
-    const targetWord = possibleWords[randomIndex];
-    
-    console.log(`[DEBUG] Generated target word: ${targetWord} for category: ${category.name}`);
-    return targetWord;
-  } catch (error) {
-    console.error('Error generating target word:', error);
-    return 'apple'; // Fallback word
-  }
-};
-
-// Generate a hint for the target word
-const generateHint = (targetWord: string): string => {
-  // Different hint strategies
-  const hintTypes = [
-    // First letter hint
-    () => `The word starts with "${targetWord[0].toUpperCase()}"`,
-    
-    // Length hint
-    () => `The word has ${targetWord.length} letters`,
-    
-    // Partial reveal (reveal ~30% of letters with their positions)
-    () => {
-      const letters = targetWord.split('');
-      const revealCount = Math.max(1, Math.floor(letters.length * 0.3));
-      const positions = [];
-      
-      // Collect random positions to reveal
-      while (positions.length < revealCount) {
-        const pos = Math.floor(Math.random() * letters.length);
-        if (!positions.includes(pos)) {
-          positions.push(pos);
-        }
-      }
-      
-      // Create the hint with revealed letters
-      let hint = 'Some letters: ';
-      positions.sort((a, b) => a - b);
-      positions.forEach((pos, idx) => {
-        hint += `"${letters[pos].toUpperCase()}" at position ${pos + 1}`;
-        if (idx < positions.length - 1) {
-          hint += ', ';
-        }
-      });
-      
-      return hint;
-    },
-    
-    // Category specific hint
-    (category?: string) => `This is a ${category || 'common'} word`
-  ];
-  
-  // Select a random hint type
-  const randomHintType = Math.floor(Math.random() * hintTypes.length);
-  return hintTypes[randomHintType]();
-};
-
-export const useGame = (categoryId: string, mode: GameMode) => {
-  const [gameState, setGameState] = useState<GameState>({
-    categoryId,
-    mode,
-    targetWord: '',
-    guesses: [],
-    isGameOver: false,
-    isWon: false,
-    startTime: Date.now(),
-    endTime: null,
-    timeLimit: mode === 'speedrun' ? 60 : null, // 60 seconds for speedrun
-    wordsGuessed: 0,
-    hintsEnabled: true, // hints enabled by default
-    currentHint: null
-  });
-  
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(
-    gameState.mode === 'speedrun' ? gameState.timeLimit : null
-  );
-  
-  // Initialize game
-  useEffect(() => {
-    startNewRound();
-    
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [categoryId, mode]);
-  
-  // Setup timer for speedrun mode
-  useEffect(() => {
-    if (gameState.mode === 'speedrun' && gameState.timeLimit && !gameState.isGameOver) {
-      timerRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev === null) return null;
-          if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            setGameState(prev => ({
-              ...prev,
-              isGameOver: true,
-              endTime: Date.now()
-            }));
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+  },
+  'avengers': {
+    name: 'avengers',
+    related: ['marvel', 'superheroes', 'action'],
+    properties: {
+      genre: ['action', 'superhero', 'scifi'],
+      director: ['joss whedon', 'russo brothers'],
+      features: ['iron man', 'thor', 'hulk', 'captain america', 'superheroes']
     }
-    
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [gameState.mode, gameState.timeLimit, gameState.isGameOver]);
-  
-  const startNewRound = useCallback(() => {
-    const newWord = generateTargetWord(categoryId);
-    
-    setGameState({
-      categoryId,
-      mode,
-      targetWord: newWord,
-      guesses: [],
-      isGameOver: false,
-      isWon: false,
-      startTime: Date.now(),
-      endTime: null,
-      timeLimit: mode === 'speedrun' ? 60 : null,
-      wordsGuessed: gameState.wordsGuessed,
-      hintsEnabled: gameState.hintsEnabled,
-      currentHint: null
-    });
-    
-    setTimeRemaining(mode === 'speedrun' ? 60 : null);
-  }, [categoryId, mode, gameState.wordsGuessed, gameState.hintsEnabled]);
-  
-  const toggleHints = useCallback(() => {
-    setGameState(prev => ({
-      ...prev,
-      hintsEnabled: !prev.hintsEnabled,
-      currentHint: !prev.hintsEnabled ? prev.currentHint : null
-    }));
-    
-    toast.success(gameState.hintsEnabled ? 'Hints disabled' : 'Hints enabled');
-  }, [gameState.hintsEnabled]);
-  
-  const submitGuess = useCallback(async (guess: string) => {
-    if (gameState.isGameOver) return;
-    
-    // Validate input
-    if (!guess || guess.trim() === '') {
-      toast.error('Please enter a guess');
-      return;
+  },
+  'matrix': {
+    name: 'matrix',
+    related: ['scifi', 'action', 'philosophy'],
+    properties: {
+      genre: ['scifi', 'action', 'cyberpunk'],
+      director: ['wachowskis'],
+      features: ['neo', 'virtual reality', 'kung fu', 'dystopian', 'computers']
     }
-    
-    const normalizedGuess = guess.trim();
-    
-    // Check if the word is valid
-    const isValid = isValidWord(normalizedGuess);
-    
-    if (!isValid) {
-      toast.error('Word unknown');
-      return;
+  },
+  'inception': {
+    name: 'inception',
+    related: ['scifi', 'mind bending', 'dreams'],
+    properties: {
+      genre: ['scifi', 'thriller', 'action'],
+      director: ['christopher nolan'],
+      features: ['dreams', 'heist', 'mind', 'complex', 'layers']
     }
-    
-    const proximity = calculateProximity(normalizedGuess, gameState.targetWord, gameState.categoryId);
-    const isCorrect = proximity === 100;
-    
-    // Update game state
-    setGameState(prev => {
-      // Add the new guess
-      const newGuesses = [...prev.guesses, { word: normalizedGuess, proximity }];
-      
-      // Sort guesses by proximity (highest to lowest)
-      const sortedGuesses = newGuesses.sort((a, b) => b.proximity - a.proximity);
-      
-      const newState = {
-        ...prev,
-        guesses: sortedGuesses,
-      };
-      
-      // Check if we should provide a hint (every 15 wrong guesses)
-      if (prev.hintsEnabled && !isCorrect && newGuesses.length % 15 === 0) {
-        const hint = generateHint(prev.targetWord);
-        newState.currentHint = hint;
-        
-        // Show hint toast
-        setTimeout(() => {
-          toast.info(`Hint: ${hint}`, {
-            duration: 8000,
-          });
-        }, 500);
-      }
-      
-      if (isCorrect) {
-        if (prev.mode === 'classic') {
-          newState.isWon = true;
-          newState.isGameOver = true;
-          newState.endTime = Date.now();
-        } else {
-          // Speedrun: move to next word
-          newState.wordsGuessed = prev.wordsGuessed + 1;
-          setTimeout(() => {
-            toast.success('Correct! Next word...');
-            startNewRound();
-          }, 500);
-        }
-      }
-      
-      return newState;
-    });
-    
-    if (isCorrect && gameState.mode === 'classic') {
-      toast.success('You guessed the word!');
+  },
+  'frozen': {
+    name: 'frozen',
+    related: ['disney', 'animation', 'musical'],
+    properties: {
+      genre: ['animation', 'musical', 'fantasy'],
+      director: ['jennifer lee', 'chris buck'],
+      features: ['elsa', 'anna', 'olaf', 'ice', 'snow', 'princess']
     }
-  }, [gameState.isGameOver, gameState.targetWord, gameState.mode, gameState.hintsEnabled, gameState.categoryId, startNewRound]);
-  
-  const getElapsedTime = useCallback(() => {
-    if (gameState.endTime) {
-      return Math.floor((gameState.endTime - gameState.startTime) / 1000);
+  },
+  'joker': {
+    name: 'joker',
+    related: ['dc', 'batman', 'villain'],
+    properties: {
+      genre: ['thriller', 'drama', 'crime'],
+      director: ['todd phillips'],
+      features: ['mental illness', 'villain', 'dark', 'gotham', 'origin story']
     }
-    return Math.floor((Date.now() - gameState.startTime) / 1000);
-  }, [gameState.startTime, gameState.endTime]);
-  
-  const resetGame = useCallback(() => {
-    setGameState({
-      categoryId,
-      mode,
-      targetWord: generateTargetWord(categoryId),
-      guesses: [],
-      isGameOver: false,
-      isWon: false,
-      startTime: Date.now(),
-      endTime: null,
-      timeLimit: mode === 'speedrun' ? 60 : null,
-      wordsGuessed: 0,
-      hintsEnabled: gameState.hintsEnabled,
-      currentHint: null
-    });
-    
-    setTimeRemaining(mode === 'speedrun' ? 60 : null);
-  }, [categoryId, mode, gameState.hintsEnabled]);
-  
-  return {
-    gameState,
-    timeRemaining,
-    submitGuess,
-    getElapsedTime,
-    resetGame,
-    startNewRound,
-    toggleHints
-  };
-};
-
-export default useGame;
+  },
+  'gladiator': {
+    name: 'gladiator',
+    related: ['historical', 'ancient rome', 'action'],
+    properties: {
+      genre: ['action', 'drama', 'historical'],
+      director: ['ridley scott'],
+      features: ['rome', 'arena', 'revenge', 'emperor', 'battle']
+    }
+  },
+  'jurassic': {
+    name: 'jurassic',
+    related: ['dinosaurs', 'park', 'world'],
+    properties: {
+      genre: ['scifi', 'adventure', 'thriller'],
+      director: ['steven spielberg', 'colin trevorrow'],
+      features: ['dinosaurs', 'park', 'genetic engineering', 'island', 'danger']
+    }
+  },
+  'batman': {
+    name: 'batman',
+    related: ['dc', 'superhero', 'gotham'],
+    properties: {
+      genre: ['action', 'superhero', 'crime'],
+      director: ['christopher nolan', 'tim burton', 'matt reeves'],
+      features: ['gotham', 'joker', 'superhero', 'dark knight', 'detective']
+    }
+  },
+  'superman': {
+    name: 'superman',
+    related: ['dc', 'superhero', 'krypton'],
+    properties: {
+      genre: ['action', 'superhero', 'scifi'],
+      director: ['richard donner', 'zack snyder'],
+      features: ['krypton', 'superhero', 'metropolis', 'reporter', 'flying']
+    }
+  },
+  'wonderwoman': {
+    name: 'wonderwoman',
+    related: ['dc', 'superhero', 'amazon'],
+    properties: {
+      genre: ['action', 'superhero', 'war'],
+      director: ['patty jenkins'],
+      features: ['amazon', 'superhero', 'female hero', 'themyscira', 'world war']
+    }
+  },
+  'starwars': {
+    name: 'starwars',
+    related: ['scifi', 'space', 'jedi'],
+    properties: {
+      genre: ['scifi', 'adventure', 'fantasy'],
+      director: ['george lucas', 'j.j. abrams', 'rian johnson'],
+      features: ['jedi', 'force', 'space', 'lightsaber', 'empire']
+    }
+  },
+  'harrypotter': {
+    name: 'harrypotter',
+    related: ['fantasy', 'magic', 'wizards'],
+    properties: {
+      genre: ['fantasy', 'adventure', 'young adult'],
+      director: ['chris
