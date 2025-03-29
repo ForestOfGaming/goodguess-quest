@@ -62,7 +62,10 @@ export const isValidWord = (word: string): boolean => {
     }
   }
   
-  // Check for common non-words patterns (expanded blacklist approach)
+  // For longer words (4+ letters), we'll assume they're valid if they pass basic checks
+  // This allows common words like "bread", "water", "apple" etc.
+  
+  // Check for common non-words patterns
   const nonWords = ['aaa', 'bbb', 'ccc', 'ddd', 'eee', 'fff', 'ggg', 'hhh', 'iii', 
                    'jjj', 'kkk', 'lll', 'mmm', 'nnn', 'ooo', 'ppp', 'qqq', 'rrr', 
                    'sss', 'ttt', 'uuu', 'vvv', 'www', 'xxx', 'yyy', 'zzz',
