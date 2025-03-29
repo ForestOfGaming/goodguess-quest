@@ -10,8 +10,8 @@ export const isValidWord = (word: string): boolean => {
   const wordSegments = normalizedWord.split(' ');
   
   for (const segment of wordSegments) {
-    // Each segment should be at least 2 characters and contain only letters
-    if (segment.length < 2 || !/^[a-z]+$/.test(segment)) {
+    // Each segment should contain only letters
+    if (!/^[a-z]+$/.test(segment)) {
       return false;
     }
     
