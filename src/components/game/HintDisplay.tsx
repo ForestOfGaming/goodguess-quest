@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Lightbulb, Switch } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import { Switch as SwitchUI } from '../../components/ui/switch';
 
 interface HintDisplayProps {
