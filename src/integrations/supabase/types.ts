@@ -9,7 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      leaderboard: {
+        Row: {
+          category_id: string
+          created_at: string
+          game_mode: string
+          id: string
+          score: number
+          time_seconds: number | null
+          user_id: string | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          game_mode: string
+          id?: string
+          score: number
+          time_seconds?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          game_mode?: string
+          id?: string
+          score?: number
+          time_seconds?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leaderboard_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

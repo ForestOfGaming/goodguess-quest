@@ -1,9 +1,13 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Clock } from 'lucide-react';
+import { Clock, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import Leaderboard from '@/components/Leaderboard';
 
 const GameOver = () => {
   const { categoryId = '', wordsGuessed = '0' } = useParams<{ 
@@ -11,6 +15,34 @@ const GameOver = () => {
     wordsGuessed: string;
   }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const wordsCount = parseInt(wordsGuessed);
+  
+  useEffect(() => {
+    const saveScore = async () => {
+      if (!user) return;
+      
+      try {
+        const { error } = await supabase
+          .from('leaderboard')
+          .insert({
+            user_id: user.id,
+            category_id: categoryId,
+            game_mode: 'speedrun',
+            score: wordsCount,
+            time_seconds: 60 // Speedrun is always 60 seconds
+          });
+        
+        if (error) throw error;
+        
+        console.log('Score saved to leaderboard');
+      } catch (err) {
+        console.error('Error saving score:', err);
+      }
+    };
+    
+    saveScore();
+  }, [user, categoryId, wordsCount]);
   
   const handlePlayAgain = () => {
     navigate(`/game/${categoryId}/speedrun`);
@@ -96,9 +128,34 @@ const GameOver = () => {
           onClick={handleShare}
           className="bg-goodguess-secondary text-goodguess-text font-bold text-xl py-3 px-6 rounded-xl shadow-md hover:bg-opacity-90 transition-colors"
         >
+          <Share2 className="inline-block mr-2" />
           Share Result
         </motion.button>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.4 }}
+          className="mt-8"
+        >
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => navigate('/leaderboard')}
+          >
+            View Leaderboard
+          </Button>
+        </motion.div>
       </div>
+      
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.0, duration: 0.6 }}
+        className="mt-12 w-full max-w-2xl bg-white p-6 rounded-lg shadow-md"
+      >
+        <Leaderboard categoryId={categoryId} mode="speedrun" limit={5} showFilters={false} />
+      </motion.div>
     </div>
   );
 };

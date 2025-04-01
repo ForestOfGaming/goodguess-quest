@@ -1,17 +1,53 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Heart, Share2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { categories } from '../data/categories';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { GameMode } from '@/hooks/useGame';
+import Leaderboard from '@/components/Leaderboard';
 
 const WinScreen = () => {
   const { categoryId = '', mode = 'classic', time = '0' } = useParams<{ 
-    categoryId: string;
-    mode: string;
+    categoryId: string; 
+    mode: GameMode;
     time: string;
   }>();
   const navigate = useNavigate();
+  const timeSeconds = parseInt(time);
+  const { user } = useAuth();
+  
+  const category = categories.find(c => c.id === categoryId);
+  
+  useEffect(() => {
+    const saveScore = async () => {
+      if (!user) return;
+      
+      try {
+        const { error } = await supabase
+          .from('leaderboard')
+          .insert({
+            user_id: user.id,
+            category_id: categoryId,
+            game_mode: mode,
+            score: mode === 'speedrun' ? 1 : 100, // For classic mode, score is always 100 (win)
+            time_seconds: timeSeconds
+          });
+        
+        if (error) throw error;
+        
+        console.log('Score saved to leaderboard');
+      } catch (err) {
+        console.error('Error saving score:', err);
+      }
+    };
+    
+    saveScore();
+  }, [user, categoryId, mode, timeSeconds]);
   
   const handlePlayAgain = () => {
     navigate(`/game/${categoryId}/${mode}`);
@@ -22,7 +58,7 @@ const WinScreen = () => {
   };
   
   const handleShare = () => {
-    const text = `I guessed the word in ${time} seconds on GoodGuess! Try to beat my time!`;
+    const text = `I found the word in ${time} seconds on GoodGuess! Can you beat my time?`;
     
     if (navigator.share) {
       navigator.share({
@@ -51,10 +87,10 @@ const WinScreen = () => {
         className="relative mb-8"
       >
         <div className="absolute inset-0 flex items-center justify-center">
-          <Sparkles className="w-24 h-24 text-goodguess-secondary animate-pulse" />
+          <Heart className="w-24 h-24 text-red-500" />
         </div>
-        <h1 className="text-7xl font-extrabold text-goodguess-text text-center">
-          YOU WIN!
+        <h1 className="text-6xl md:text-7xl font-extrabold text-goodguess-primary text-center">
+          You Won!
         </h1>
       </motion.div>
       
@@ -64,9 +100,12 @@ const WinScreen = () => {
         transition={{ delay: 0.4, duration: 0.5 }}
         className="text-center mb-12"
       >
-        <div className="bg-goodguess-primary text-goodguess-secondary text-3xl font-bold px-8 py-4 rounded-2xl shadow-lg">
-          Your time was {time}s
+        <div className="bg-goodguess-secondary text-goodguess-text text-2xl md:text-3xl font-bold px-8 py-4 rounded-2xl shadow-lg">
+          {time} seconds
         </div>
+        <p className="mt-4 text-lg">
+          Category: <span className="font-bold">{category?.name || categoryId}</span>
+        </p>
       </motion.div>
       
       <div className="flex flex-col space-y-4 w-full max-w-xs">
@@ -97,9 +136,34 @@ const WinScreen = () => {
           onClick={handleShare}
           className="bg-goodguess-secondary text-goodguess-text font-bold text-xl py-3 px-6 rounded-xl shadow-md hover:bg-opacity-90 transition-colors"
         >
+          <Share2 className="inline-block mr-2" />
           Share Result
         </motion.button>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.4 }}
+          className="mt-8"
+        >
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => navigate('/leaderboard')}
+          >
+            View Leaderboard
+          </Button>
+        </motion.div>
       </div>
+      
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.0, duration: 0.6 }}
+        className="mt-12 w-full max-w-2xl bg-white p-6 rounded-lg shadow-md"
+      >
+        <Leaderboard categoryId={categoryId} mode={mode as GameMode} limit={5} showFilters={false} />
+      </motion.div>
     </div>
   );
 };
