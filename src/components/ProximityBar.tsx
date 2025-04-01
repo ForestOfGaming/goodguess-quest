@@ -12,6 +12,8 @@ const ProximityBar: React.FC<ProximityBarProps> = ({ percentage, index }) => {
   const getColor = () => {
     if (percentage >= 75) return 'bg-goodguess-success';
     if (percentage >= 40) return 'bg-goodguess-warning';
+    if (percentage >= 20) return 'bg-yellow-400';
+    if (percentage >= 10) return 'bg-orange-400';
     return 'bg-goodguess-danger';
   };
   
@@ -25,7 +27,7 @@ const ProximityBar: React.FC<ProximityBarProps> = ({ percentage, index }) => {
       <motion.div 
         className={`h-full ${getColor()} rounded-full`}
         initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
+        animate={{ width: `${Math.max(5, percentage)}%` }} {/* Minimum bar width of 5% for visibility */}
         transition={{ duration: 0.5, delay: 0.2 }}
       />
     </motion.div>

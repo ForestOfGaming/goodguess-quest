@@ -18,7 +18,7 @@ export const calculateWordSimilarity = (word1: string, word2: string): number =>
   
   // Length-based penalty
   const lengthDiff = Math.abs(word1.length - word2.length);
-  const lengthPenalty = Math.min(lengthDiff * 5, 30);
+  const lengthPenalty = Math.min(lengthDiff * 5, 25); // Reduced from 30 to 25
   
   // Character-based similarity
   let commonChars = 0;
@@ -62,8 +62,18 @@ export const calculateWordSimilarity = (word1: string, word2: string): number =>
   prefixBonus = Math.min(prefixBonus, 20);
   suffixBonus = Math.min(suffixBonus, 15);
   
-  // Calculate final similarity
-  let similarity = charSimilarity - lengthPenalty + prefixBonus + suffixBonus;
+  // Calculate final similarity with a base minimum of 5 for any comparison
+  let similarity = Math.max(5, charSimilarity - lengthPenalty + prefixBonus + suffixBonus);
+  
+  // First letter match bonus (small bonus)
+  if (word1.charAt(0) === word2.charAt(0)) {
+    similarity += 5;
+  }
+  
+  // Last letter match bonus (small bonus)
+  if (word1.charAt(word1.length - 1) === word2.charAt(word2.length - 1)) {
+    similarity += 3;
+  }
   
   // Ensure the value is within 0-100 range
   similarity = Math.max(0, Math.min(similarity, 100));
@@ -98,6 +108,9 @@ export const calculateSemanticSimilarity = (guess: string, targetWord: string, c
       break;
   }
   
+  // Apply a small base minimum to semantic similarity as well
+  similarity = Math.max(3, similarity);
+  
   // Ensure the value is within 0-100 range
   similarity = Math.max(0, Math.min(similarity, 100));
   
@@ -116,6 +129,9 @@ const calculateFoodSimilarity = (guess: string, target: string, baseSimilarity: 
   // Check for related terms
   if (guessFood.related.some(term => targetFood.related.includes(term))) {
     bonusPoints += 15;
+  } else {
+    // Small bonus just for being in the same category
+    bonusPoints += 5;
   }
   
   // Check for country match
@@ -155,6 +171,9 @@ const calculateAnimalSimilarity = (guess: string, target: string, baseSimilarity
   // Check for related terms
   if (guessAnimal.related.some(term => targetAnimal.related.includes(term))) {
     bonusPoints += 15;
+  } else {
+    // Small bonus just for being in the same category
+    bonusPoints += 5;
   }
   
   // Check for species match
@@ -210,6 +229,9 @@ const calculateCountrySimilarity = (guess: string, target: string, baseSimilarit
   // Check for related terms
   if (guessCountry.related.some(term => targetCountry.related.includes(term))) {
     bonusPoints += 15;
+  } else {
+    // Small bonus just for being in the same category
+    bonusPoints += 5;
   }
   
   // Check for region match
@@ -265,6 +287,9 @@ const calculateSportSimilarity = (guess: string, target: string, baseSimilarity:
   // Check for related terms
   if (guessSport.related.some(term => targetSport.related.includes(term))) {
     bonusPoints += 15;
+  } else {
+    // Small bonus just for being in the same category
+    bonusPoints += 5;
   }
   
   // Check for type match
@@ -320,6 +345,9 @@ const calculateMovieSimilarity = (guess: string, target: string, baseSimilarity:
   // Check for related terms
   if (guessMovie.related.some(term => targetMovie.related.includes(term))) {
     bonusPoints += 15;
+  } else {
+    // Small bonus just for being in the same category
+    bonusPoints += 5;
   }
   
   // Check for genre match
