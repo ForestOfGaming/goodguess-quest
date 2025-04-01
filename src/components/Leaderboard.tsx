@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Trophy, ListFilter, AlertCircle } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { GameMode } from '@/hooks/useGame';
+import { Database } from '@/integrations/supabase/types';
 
 interface LeaderboardEntry {
   id: string;

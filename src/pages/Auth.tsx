@@ -67,7 +67,7 @@ const Auth = () => {
     <div className="min-h-screen bg-goodguess-background flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full mx-auto space-y-6">
         <div className="flex justify-center mb-6">
-          <Logo size="large" />
+          <Logo />
         </div>
         
         <Tabs defaultValue="signin" className="w-full">

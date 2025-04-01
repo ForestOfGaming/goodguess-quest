@@ -23,6 +23,7 @@ const GameOver = () => {
       if (!user) return;
       
       try {
+        // Insert the score to the leaderboard
         const { error } = await supabase
           .from('leaderboard')
           .insert({

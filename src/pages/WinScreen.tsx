@@ -28,6 +28,7 @@ const WinScreen = () => {
       if (!user) return;
       
       try {
+        // Insert the score into the leaderboard
         const { error } = await supabase
           .from('leaderboard')
           .insert({

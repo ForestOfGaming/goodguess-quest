@@ -20,7 +20,7 @@ const Index = () => {
         transition={{ duration: 0.5 }}
         className="mt-12 mb-8"
       >
-        <Logo size="xlarge" />
+        <Logo />
       </motion.div>
       
       <motion.div
