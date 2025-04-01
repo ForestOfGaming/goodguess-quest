@@ -27,7 +27,7 @@ const ProximityBar: React.FC<ProximityBarProps> = ({ percentage, index }) => {
       <motion.div 
         className={`h-full ${getColor()} rounded-full`}
         initial={{ width: 0 }}
-        animate={{ width: `${Math.max(5, percentage)}%` }} {/* Minimum bar width of 5% for visibility */}
+        animate={{ width: `${Math.max(5, percentage)}%` }} /* Minimum bar width of 5% for visibility */
         transition={{ duration: 0.5, delay: 0.2 }}
       />
     </motion.div>
