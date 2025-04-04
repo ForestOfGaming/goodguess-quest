@@ -17,7 +17,7 @@ export const useGameTimer = (gameState: GameState) => {
       clearInterval(timerRef.current);
     }
     
-    // Set interval for both modes
+    // Set interval for both modes with faster updates (100ms instead of 1000ms)
     timerRef.current = setInterval(() => {
       // For speedrun mode: countdown timer
       if (gameState.mode === 'speedrun' && !gameState.isGameOver) {
@@ -25,7 +25,11 @@ export const useGameTimer = (gameState: GameState) => {
           if (prev === null || prev <= 0) {
             return 0;
           }
-          return prev - 1;
+          // Only decrement once per second
+          const now = Date.now();
+          const secondsPassed = Math.floor((now - gameState.startTime) / 1000);
+          const newValue = gameState.timeLimit! - secondsPassed;
+          return newValue > 0 ? newValue : 0;
         });
       }
       
@@ -37,7 +41,7 @@ export const useGameTimer = (gameState: GameState) => {
         
         setElapsedTime(currentElapsed);
       }
-    }, 1000);
+    }, 100); // Update 10 times per second for smoother display
     
     // Cleanup
     return () => {
@@ -45,7 +49,7 @@ export const useGameTimer = (gameState: GameState) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [gameState.mode, gameState.isGameOver, gameState.startTime, gameState.endTime]);
+  }, [gameState.mode, gameState.isGameOver, gameState.startTime, gameState.endTime, gameState.timeLimit]);
   
   // Get elapsed time in seconds
   const getElapsedTime = () => {
