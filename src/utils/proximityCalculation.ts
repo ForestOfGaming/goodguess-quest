@@ -1,4 +1,3 @@
-
 import { 
   foodDatabase, 
   animalsDatabase, 
@@ -6,7 +5,7 @@ import {
   sportsDatabase, 
   moviesDatabase, 
   SemanticData 
-} from '../data/semanticDatabases';
+} from '../data/semantic';
 
 // Function to calculate word similarity
 export const calculateWordSimilarity = (word1: string, word2: string): number => {

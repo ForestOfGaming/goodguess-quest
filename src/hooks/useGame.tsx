@@ -5,7 +5,7 @@ import { categories } from '../data/categories';
 import { isValidWord } from '../utils/wordValidation';
 import { calculateSemanticSimilarity } from '../utils/proximityCalculation';
 import { generateHint } from '../utils/hintGeneration';
-import { categoryWords } from '../data/semanticDatabases';
+import { categoryWords } from '../data/semantic';
 
 export type GameMode = 'classic' | 'speedrun';
 

@@ -5,7 +5,7 @@ import {
   countriesDatabase, 
   sportsDatabase, 
   moviesDatabase 
-} from '../data/semanticDatabases';
+} from '../data/semantic';
 
 // Generate hint based on guess history and category
 export const generateHint = (
