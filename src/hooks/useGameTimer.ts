@@ -7,9 +7,10 @@ export const useGameTimer = (gameState: GameState) => {
     gameState.mode === 'speedrun' ? gameState.timeLimit : null
   );
   
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Setup timer for speedrun mode and constant timer updates for classic mode
+  // Setup timer for both modes
   useEffect(() => {
     // Clear any existing timer
     if (timerRef.current) {
@@ -18,17 +19,23 @@ export const useGameTimer = (gameState: GameState) => {
     
     // Set interval for both modes
     timerRef.current = setInterval(() => {
+      // For speedrun mode: countdown timer
       if (gameState.mode === 'speedrun' && !gameState.isGameOver) {
         setTimeRemaining(prev => {
-          if (prev === null || prev <= 1) {
-            // Time's up!
+          if (prev === null || prev <= 0) {
             return 0;
           }
           return prev - 1;
         });
-      } else if (gameState.mode === 'classic' && !gameState.isGameOver) {
-        // Force re-render to update elapsed time counter
-        setTimeRemaining(prev => (prev === null ? null : Date.now()));
+      }
+      
+      // For both modes: update elapsed time
+      if (!gameState.isGameOver) {
+        const currentElapsed = gameState.endTime 
+          ? Math.floor((gameState.endTime - gameState.startTime) / 1000)
+          : Math.floor((Date.now() - gameState.startTime) / 1000);
+        
+        setElapsedTime(currentElapsed);
       }
     }, 1000);
     
@@ -38,14 +45,11 @@ export const useGameTimer = (gameState: GameState) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [gameState.mode, gameState.isGameOver]);
+  }, [gameState.mode, gameState.isGameOver, gameState.startTime, gameState.endTime]);
   
   // Get elapsed time in seconds
   const getElapsedTime = () => {
-    if (gameState.endTime) {
-      return Math.floor((gameState.endTime - gameState.startTime) / 1000);
-    }
-    return Math.floor((Date.now() - gameState.startTime) / 1000);
+    return elapsedTime;
   };
   
   return { timeRemaining, getElapsedTime };
