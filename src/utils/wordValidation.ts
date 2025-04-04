@@ -48,7 +48,8 @@ export const isValidWord = (word: string): boolean => {
     // Filter out obviously non-existent words (like "qxz", "jzx", etc.)
     if (/[qxzj]{2,}/.test(segment) || 
         /[^aeiouy]{5,}/.test(segment) || // 5+ consonants in a row is unlikely
-        /q[^u]/.test(segment)) { // q is almost always followed by u in English
+        /q[^u]/.test(segment) ||  // q is almost always followed by u in English
+        /j/.test(segment)) {  // Reject any word with j as requested
       return false;
     }
     
