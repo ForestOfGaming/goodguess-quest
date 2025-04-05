@@ -79,7 +79,8 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
             targetWord: newTargetWord,
             guesses: [],
             wordsGuessed: prev.wordsGuessed + 1,
-            currentHint: null
+            currentHint: null,
+            revealedHints: [] // Reset hints for the new word
           };
         }
         
@@ -99,18 +100,41 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
         }
         
         // Check if a hint should be given (every 15 guesses)
-        let newHint = prev.currentHint;
+        let updatedHints = [...prev.revealedHints];
         if (prev.hintsEnabled && updatedGuesses.length % 15 === 0 && !isCorrectGuess) {
-          newHint = generateHint(prev.targetWord, prev.categoryId, updatedGuesses);
-          toast.info("A hint has been revealed!", {
-            position: "top-center"
-          });
+          // Generate a hint that hasn't been shown before
+          let attempts = 0;
+          let newHint = null;
+          
+          // Try up to 5 times to get a unique hint
+          while (attempts < 5) {
+            attempts++;
+            newHint = generateHint(prev.targetWord, prev.categoryId, updatedGuesses);
+            
+            // Check if this hint is new
+            if (newHint && !prev.revealedHints.includes(newHint)) {
+              updatedHints.push(newHint);
+              toast.info("A new hint has been revealed!", {
+                position: "top-center"
+              });
+              break;
+            }
+          }
+          
+          // If we couldn't generate a unique hint after several attempts
+          if (attempts >= 5 && updatedHints.length === prev.revealedHints.length) {
+            newHint = `The word has ${prev.targetWord.length} letters.`;
+            if (!prev.revealedHints.includes(newHint)) {
+              updatedHints.push(newHint);
+            }
+          }
         }
         
         return {
           ...prev,
           guesses: updatedGuesses,
-          currentHint: newHint
+          revealedHints: updatedHints,
+          currentHint: updatedHints.length > 0 ? updatedHints[updatedHints.length - 1] : null
         };
       });
     } catch (error) {
@@ -126,7 +150,7 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
     setGameState(prev => ({
       ...prev,
       hintsEnabled: !prev.hintsEnabled,
-      currentHint: prev.hintsEnabled ? null : prev.currentHint
+      currentHint: !prev.hintsEnabled ? prev.revealedHints[prev.revealedHints.length - 1] || null : null
     }));
   }, [setGameState]);
 

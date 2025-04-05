@@ -8,9 +8,17 @@ interface HintDisplayProps {
   hintsEnabled: boolean;
   toggleHints: () => void;
   currentHint: string | null;
+  revealedHints?: string[];
 }
 
-const HintDisplay: React.FC<HintDisplayProps> = ({ hintsEnabled, toggleHints, currentHint }) => {
+const HintDisplay: React.FC<HintDisplayProps> = ({ 
+  hintsEnabled, 
+  toggleHints, 
+  currentHint,
+  revealedHints = []
+}) => {
+  const visibleHints = hintsEnabled ? revealedHints : [];
+
   return (
     <>
       <div className="flex items-center justify-center mb-6 space-x-2">
@@ -24,15 +32,21 @@ const HintDisplay: React.FC<HintDisplayProps> = ({ hintsEnabled, toggleHints, cu
         <span className="text-xs text-gray-500">(every 15 guesses)</span>
       </div>
       
-      {currentHint && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg mb-6 flex items-center"
-        >
-          <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
-          <span className="text-sm">Hint: {currentHint}</span>
-        </motion.div>
+      {visibleHints.length > 0 && hintsEnabled && (
+        <div className="space-y-2 mb-6">
+          {visibleHints.map((hint, index) => (
+            <motion.div 
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * index }}
+              className="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg flex items-center"
+            >
+              <Lightbulb className="w-5 h-5 text-yellow-500 mr-2 flex-shrink-0" />
+              <span className="text-sm">Hint: {hint}</span>
+            </motion.div>
+          ))}
+        </div>
       )}
     </>
   );

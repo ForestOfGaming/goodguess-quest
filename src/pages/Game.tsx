@@ -22,7 +22,8 @@ const Game = () => {
     submitGuess,
     getElapsedTime,
     toggleHints,
-    isValidating
+    isValidating,
+    revealedHints
   } = useGame(categoryId, mode as GameMode);
   
   useEffect(() => {
@@ -68,7 +69,8 @@ const Game = () => {
           <HintDisplay 
             hintsEnabled={gameState.hintsEnabled} 
             toggleHints={toggleHints} 
-            currentHint={gameState.currentHint} 
+            currentHint={gameState.currentHint}
+            revealedHints={revealedHints} 
           />
           
           <GuessList 

@@ -28,7 +28,8 @@ const useGame = (categoryId: string, mode: GameMode) => {
     submitGuess,
     getElapsedTime,
     toggleHints,
-    isValidating
+    isValidating,
+    revealedHints: gameState.revealedHints
   };
 };
 

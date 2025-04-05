@@ -16,6 +16,7 @@ export interface GameState {
   wordsGuessed: number;
   hintsEnabled: boolean;
   currentHint: string | null;
+  revealedHints: string[]; // Array to store all revealed hints
 }
 
 export const useGameState = (categoryId: string, mode: GameMode) => {
@@ -37,7 +38,8 @@ export const useGameState = (categoryId: string, mode: GameMode) => {
       timeLimit: mode === 'speedrun' ? 60 : null, // 60 seconds for speedrun mode
       wordsGuessed: 0,
       hintsEnabled: false,
-      currentHint: null
+      currentHint: null,
+      revealedHints: [], // Initialize empty array for hints
     };
   });
 
