@@ -15,11 +15,6 @@ export const isValidWord = (word: string): boolean => {
       return false;
     }
     
-    // Reject any word containing the letter 'j'
-    if (segment.includes('j')) {
-      return false;
-    }
-    
     // Reject very short words (less than 3 letters) unless they're in our whitelist
     if (segment.length < 3) {
       const validShortWords = [
@@ -32,7 +27,7 @@ export const isValidWord = (word: string): boolean => {
         'no', 'nu', 'od', 'oe', 'of', 'oh', 'oi', 'ok', 'om', 'on', 'op', 'or',
         'os', 'ow', 'ox', 'oy', 'pa', 'pe', 'pi', 'qi', 're', 'sh', 'si', 'so',
         'ta', 'ti', 'to', 'uh', 'um', 'un', 'up', 'us', 'ut', 'we', 'wo', 'xi',
-        'xu', 'ya', 'ye', 'yo', 'za', 'a', 'i', 'o' // Include single letters that are valid words
+        'xu', 'ya', 'ye', 'yo', 'za', 'a', 'i', 'o', 'jo', 'ju' // Include single letters that are valid words
       ];
       
       if (!validShortWords.includes(segment)) {
@@ -84,7 +79,7 @@ export const isValidWord = (word: string): boolean => {
     
     // Reject words that don't have enough vowels (every real word typically has vowels)
     const vowels = segment.match(/[aeiou]/g);
-    if (!vowels && segment.length > 2 && !['cry', 'fly', 'try', 'shy', 'why', 'dry', 'rhythm', 'myth'].includes(segment)) {
+    if (!vowels && segment.length > 2 && !['cry', 'fly', 'try', 'shy', 'why', 'dry', 'rhythm', 'myth', 'gym', 'myth', 'lynx', 'wyrd'].includes(segment)) {
       return false;
     }
     
@@ -98,6 +93,27 @@ export const isValidWord = (word: string): boolean => {
         return false;
       }
     }
+    
+    // For shorter words (4 letters), apply stricter validation
+    if (segment.length === 4) {
+      // Check for unlikely letter combinations in 4-letter words
+      const unlikelyCombos = ['zzz', 'xxx', 'qqq', 'vvv', 'jjj', 'kfk', 'mfp', 'xkz'];
+      for (const combo of unlikelyCombos) {
+        if (segment.includes(combo)) {
+          return false;
+        }
+      }
+      
+      // Ensure 4-letter words have at least one vowel (or are in valid exceptions)
+      if (!vowels && !['myth', 'lynx', 'rhythm'].includes(segment)) {
+        return false;
+      }
+      
+      // Check the pattern isn't just a repeating pair (like 'abab', 'xyxy')
+      if (/^(..)\\1$/.test(segment)) {
+        return false;
+      }
+    }
   }
   
   // Basic length check (most real words aren't extremely long)
@@ -107,3 +123,11 @@ export const isValidWord = (word: string): boolean => {
   
   return true;
 };
+
+// Function to check if a word exists in an actual dictionary
+// This could be replaced with an actual API call to a dictionary service
+export const checkWordWithAI = async (word: string): Promise<boolean> => {
+  // This is a placeholder - in a real implementation, you would call an API
+  // For now, we'll return true to indicate that the word passed our basic checks
+  return true;
+}

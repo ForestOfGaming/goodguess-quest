@@ -6,14 +6,17 @@ interface GuessFormProps {
   guess: string;
   setGuess: (guess: string) => void;
   submitGuess: (guess: string) => void;
+  isValidating?: boolean;
 }
 
-const GuessForm: React.FC<GuessFormProps> = ({ guess, setGuess, submitGuess }) => {
+const GuessForm: React.FC<GuessFormProps> = ({ guess, setGuess, submitGuess, isValidating = false }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submitGuess(guess);
+    if (!isValidating) {
+      submitGuess(guess);
+    }
     
     if (inputRef.current) {
       inputRef.current.focus();
@@ -36,12 +39,14 @@ const GuessForm: React.FC<GuessFormProps> = ({ guess, setGuess, submitGuess }) =
           className="w-full h-16 px-4 rounded-2xl border-2 border-goodguess-primary text-lg focus:outline-none focus:ring-2 focus:ring-goodguess-primary focus:border-transparent"
           placeholder="Type your guess..."
           autoComplete="off"
+          disabled={isValidating}
         />
         <button 
           type="submit"
-          className="absolute right-2 top-2 h-12 px-4 bg-goodguess-primary text-white rounded-xl font-semibold hover:bg-goodguess-primary-dark transition-colors"
+          disabled={isValidating}
+          className="absolute right-2 top-2 h-12 px-4 bg-goodguess-primary text-white rounded-xl font-semibold hover:bg-goodguess-primary-dark transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Guess
+          {isValidating ? "Checking..." : "Guess"}
         </button>
       </motion.div>
     </form>

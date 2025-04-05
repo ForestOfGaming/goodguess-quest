@@ -10,7 +10,7 @@ export type GameMode = 'classic' | 'speedrun';
 const useGame = (categoryId: string, mode: GameMode) => {
   const { gameState, setGameState } = useGameState(categoryId, mode);
   const { timeRemaining, getElapsedTime } = useGameTimer(gameState);
-  const { submitGuess, toggleHints } = useGuess(gameState, setGameState);
+  const { submitGuess, toggleHints, isValidating } = useGuess(gameState, setGameState);
   
   // Handle game over when timer runs out in speedrun mode
   useEffect(() => {
@@ -27,7 +27,8 @@ const useGame = (categoryId: string, mode: GameMode) => {
     timeRemaining,
     submitGuess,
     getElapsedTime,
-    toggleHints
+    toggleHints,
+    isValidating
   };
 };
 

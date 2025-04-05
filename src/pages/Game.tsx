@@ -21,7 +21,8 @@ const Game = () => {
     timeRemaining,
     submitGuess,
     getElapsedTime,
-    toggleHints
+    toggleHints,
+    isValidating
   } = useGame(categoryId, mode as GameMode);
   
   useEffect(() => {
@@ -61,6 +62,7 @@ const Game = () => {
             guess={guess} 
             setGuess={setGuess} 
             submitGuess={handleGuessSubmit} 
+            isValidating={isValidating}
           />
           
           <HintDisplay 

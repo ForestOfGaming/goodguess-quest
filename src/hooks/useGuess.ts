@@ -1,16 +1,18 @@
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
-import { isValidWord } from '../utils/wordValidation';
+import { isValidWord, checkWordWithAI } from '../utils/wordValidation';
 import { calculateSemanticSimilarity } from '../utils/proximityCalculation';
 import { generateHint } from '../utils/hintGeneration';
 import { categoryWords } from '../data/semantic';
 import { GameState } from './useGameState';
 
 export const useGuess = (gameState: GameState, setGameState: React.Dispatch<React.SetStateAction<GameState>>) => {
+  const [isValidating, setIsValidating] = useState(false);
+
   // Submit a guess
-  const submitGuess = useCallback((guess: string) => {
-    if (gameState.isGameOver) return;
+  const submitGuess = useCallback(async (guess: string) => {
+    if (gameState.isGameOver || isValidating) return;
     
     const normalizedGuess = guess.trim().toLowerCase();
     
@@ -25,80 +27,99 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
       return;
     }
     
-    // Calculate proximity to target
-    const proximity = calculateSemanticSimilarity(
-      normalizedGuess, 
-      gameState.targetWord, 
-      gameState.categoryId
-    );
+    setIsValidating(true);
     
-    // Add to guesses
-    setGameState(prev => {
-      const updatedGuesses = [
-        { word: normalizedGuess, proximity },
-        ...prev.guesses
-      ].sort((a, b) => b.proximity - a.proximity);
+    try {
+      // In a real implementation, this would call an AI or dictionary API
+      // For now we'll use the basic validation we already have
+      const isRealWord = await checkWordWithAI(normalizedGuess);
       
-      // Check if correct (100% match)
-      const isCorrectGuess = proximity === 100;
-      
-      // Handle speedrun mode success
-      if (isCorrectGuess && prev.mode === 'speedrun') {
-        // Get new target word, excluding ones already guessed
-        const allWords = categoryWords[prev.categoryId] || [];
-        const availableWords = allWords.filter(
-          word => word !== prev.targetWord && 
-          !prev.guesses.some(g => g.word === word)
-        );
-        
-        const newTargetWord = availableWords.length > 0 
-          ? availableWords[Math.floor(Math.random() * availableWords.length)]
-          : allWords[Math.floor(Math.random() * allWords.length)];
-        
-        toast.success("Correct! Next word...", {
-          position: "top-center"
-        });
-        
-        return {
-          ...prev,
-          targetWord: newTargetWord,
-          guesses: [],
-          wordsGuessed: prev.wordsGuessed + 1,
-          currentHint: null
-        };
+      if (!isRealWord) {
+        toast.error("That doesn't seem to be a real word.");
+        setIsValidating(false);
+        return;
       }
       
-      // Handle classic mode success
-      if (isCorrectGuess && prev.mode === 'classic') {
-        toast.success("You got it! Well done!", {
-          position: "top-center"
-        });
+      // Calculate proximity to target
+      const proximity = calculateSemanticSimilarity(
+        normalizedGuess, 
+        gameState.targetWord, 
+        gameState.categoryId
+      );
+      
+      // Add to guesses
+      setGameState(prev => {
+        const updatedGuesses = [
+          { word: normalizedGuess, proximity },
+          ...prev.guesses
+        ].sort((a, b) => b.proximity - a.proximity);
+        
+        // Check if correct (100% match)
+        const isCorrectGuess = proximity === 100;
+        
+        // Handle speedrun mode success
+        if (isCorrectGuess && prev.mode === 'speedrun') {
+          // Get new target word, excluding ones already guessed
+          const allWords = categoryWords[prev.categoryId] || [];
+          const availableWords = allWords.filter(
+            word => word !== prev.targetWord && 
+            !prev.guesses.some(g => g.word === word)
+          );
+          
+          const newTargetWord = availableWords.length > 0 
+            ? availableWords[Math.floor(Math.random() * availableWords.length)]
+            : allWords[Math.floor(Math.random() * allWords.length)];
+          
+          toast.success("Correct! Next word...", {
+            position: "top-center"
+          });
+          
+          return {
+            ...prev,
+            targetWord: newTargetWord,
+            guesses: [],
+            wordsGuessed: prev.wordsGuessed + 1,
+            currentHint: null
+          };
+        }
+        
+        // Handle classic mode success
+        if (isCorrectGuess && prev.mode === 'classic') {
+          toast.success("You got it! Well done!", {
+            position: "top-center"
+          });
+          
+          return {
+            ...prev,
+            guesses: updatedGuesses,
+            isGameOver: true,
+            isWon: true,
+            endTime: Date.now()
+          };
+        }
+        
+        // Check if a hint should be given (every 15 guesses)
+        let newHint = prev.currentHint;
+        if (prev.hintsEnabled && updatedGuesses.length % 15 === 0 && !isCorrectGuess) {
+          newHint = generateHint(prev.targetWord, prev.categoryId, updatedGuesses);
+          toast.info("A hint has been revealed!", {
+            position: "top-center"
+          });
+        }
         
         return {
           ...prev,
           guesses: updatedGuesses,
-          isGameOver: true,
-          isWon: true,
-          endTime: Date.now()
+          currentHint: newHint
         };
-      }
-      
-      // Check if a hint should be given (every 15 guesses)
-      let newHint = prev.currentHint;
-      if (prev.hintsEnabled && updatedGuesses.length % 15 === 0 && !isCorrectGuess) {
-        newHint = generateHint(prev.targetWord, prev.categoryId, updatedGuesses);
-        toast.info("A hint has been revealed!", {
-          position: "top-center"
-        });
-      }
-      
-      return {
-        ...prev,
-        guesses: updatedGuesses,
-        currentHint: newHint
-      };
-    });
-  }, [gameState.isGameOver, gameState.guesses, gameState.targetWord, gameState.categoryId, setGameState]);
+      });
+    } catch (error) {
+      console.error("Error validating word:", error);
+      toast.error("There was a problem validating your guess.");
+    } finally {
+      setIsValidating(false);
+    }
+  }, [gameState.isGameOver, gameState.guesses, gameState.targetWord, gameState.categoryId, setGameState, isValidating]);
 
   // Toggle hints on/off
   const toggleHints = useCallback(() => {
@@ -109,5 +130,5 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
     }));
   }, [setGameState]);
 
-  return { submitGuess, toggleHints };
+  return { submitGuess, toggleHints, isValidating };
 };
