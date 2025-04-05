@@ -22,6 +22,16 @@ const useGame = (categoryId: string, mode: GameMode) => {
     }
   }, [timeRemaining, gameState.mode, gameState.isGameOver, setGameState]);
   
+  // Function to resign/give up
+  const giveUp = () => {
+    setGameState(prev => ({
+      ...prev,
+      isGameOver: true,
+      hasResigned: true,
+      endTime: Date.now()
+    }));
+  };
+  
   return {
     gameState,
     timeRemaining,
@@ -29,7 +39,8 @@ const useGame = (categoryId: string, mode: GameMode) => {
     getElapsedTime,
     toggleHints,
     isValidating,
-    revealedHints: gameState.revealedHints
+    revealedHints: gameState.revealedHints,
+    giveUp
   };
 };
 

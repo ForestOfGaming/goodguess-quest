@@ -17,6 +17,7 @@ export interface GameState {
   hintsEnabled: boolean;
   currentHint: string | null;
   revealedHints: string[]; // Array to store all revealed hints
+  hasResigned: boolean; // Track if player gave up
 }
 
 export const useGameState = (categoryId: string, mode: GameMode) => {
@@ -40,6 +41,7 @@ export const useGameState = (categoryId: string, mode: GameMode) => {
       hintsEnabled: false,
       currentHint: null,
       revealedHints: [], // Initialize empty array for hints
+      hasResigned: false, // Initialize as not resigned
     };
   });
 

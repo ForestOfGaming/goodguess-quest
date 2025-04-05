@@ -8,6 +8,7 @@ import GameHeader from '../components/game/GameHeader';
 import GuessForm from '../components/game/GuessForm';
 import HintDisplay from '../components/game/HintDisplay';
 import GuessList from '../components/game/GuessList';
+import GiveUpButton from '../components/game/GiveUpButton';
 
 const Game = () => {
   const { categoryId = '', mode = 'classic' } = useParams<{ categoryId: string; mode: GameMode }>();
@@ -23,16 +24,17 @@ const Game = () => {
     getElapsedTime,
     toggleHints,
     isValidating,
-    revealedHints
+    revealedHints,
+    giveUp
   } = useGame(categoryId, mode as GameMode);
   
   useEffect(() => {
     if (gameState.isGameOver && gameState.isWon) {
       navigate(`/win/${categoryId}/${mode}/${getElapsedTime()}`);
-    } else if (gameState.isGameOver && mode === 'speedrun') {
+    } else if (gameState.isGameOver && mode === 'speedrun' && !gameState.hasResigned) {
       navigate(`/gameover/${categoryId}/${gameState.wordsGuessed}`);
     }
-  }, [gameState.isGameOver, gameState.isWon, navigate, categoryId, mode, getElapsedTime, gameState.wordsGuessed]);
+  }, [gameState.isGameOver, gameState.isWon, gameState.hasResigned, navigate, categoryId, mode, getElapsedTime, gameState.wordsGuessed]);
   
   useEffect(() => {
     if (inputRef.current) {
@@ -66,12 +68,20 @@ const Game = () => {
             isValidating={isValidating}
           />
           
-          <HintDisplay 
-            hintsEnabled={gameState.hintsEnabled} 
-            toggleHints={toggleHints} 
-            currentHint={gameState.currentHint}
-            revealedHints={revealedHints} 
-          />
+          <div className="flex items-center justify-between">
+            <HintDisplay 
+              hintsEnabled={gameState.hintsEnabled} 
+              toggleHints={toggleHints} 
+              currentHint={gameState.currentHint}
+              revealedHints={revealedHints} 
+            />
+            
+            <GiveUpButton 
+              onGiveUp={giveUp}
+              targetWord={gameState.targetWord}
+              isGameOver={gameState.isGameOver}
+            />
+          </div>
           
           <GuessList 
             guesses={gameState.guesses} 
