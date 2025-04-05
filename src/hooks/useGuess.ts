@@ -1,9 +1,8 @@
-
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { isValidWord, checkWordWithAI } from '../utils/wordValidation';
 import { calculateSemanticSimilarity } from '../utils/proximityCalculation';
-import { generateHint } from '../utils/hintGeneration';
+import { generateHint, generateLetterPositionHint, getOrdinalSuffix } from '../utils/hintGeneration';
 import { categoryWords } from '../data/semantic';
 import { GameState } from './useGameState';
 
@@ -120,12 +119,9 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
               position: "top-center"
             });
           } else if (attempts >= maxAttempts) {
-            // Fallback hint if we can't generate a unique one
-            const letterPositionHint = `The word "${prev.targetWord}" has ${prev.targetWord.length} letters, and the ${
-              Math.floor(Math.random() * prev.targetWord.length) + 1
-            }${getOrdinalSuffix(Math.floor(Math.random() * prev.targetWord.length) + 1)} letter is "${
-              prev.targetWord[Math.floor(Math.random() * prev.targetWord.length)]
-            }".`;
+            // Fallback to a safer letter position hint that doesn't reveal the whole word
+            // or give incorrect information
+            const letterPositionHint = generateLetterPositionHint(prev.targetWord);
             
             if (!updatedHints.includes(letterPositionHint)) {
               updatedHints.push(letterPositionHint);

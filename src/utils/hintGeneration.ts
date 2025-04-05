@@ -103,12 +103,36 @@ export const generateHint = (
       
     default:
       hint = `The word has ${targetWord.length} letters.`;
-      // Reveal a random letter position if some guesses have been made
-      if (guesses.length > 5) {
-        const position = Math.floor(Math.random() * targetWord.length);
-        hint += ` Letter #${position + 1} is "${targetWord[position]}".`;
-      }
+  }
+  
+  // If no specific category hint was generated, use a letter position hint
+  if (!hint) {
+    hint = `The word has ${targetWord.length} letters.`;
   }
   
   return hint;
+};
+
+// Generate a letter position hint safely (avoids revealing the whole word)
+export const generateLetterPositionHint = (targetWord: string): string => {
+  // Don't reveal too many letters for short words
+  if (targetWord.length <= 5) {
+    // For short words, just give the length
+    return `The word has ${targetWord.length} letters.`;
+  }
+  
+  // Select a random position, but not the first letter for fairness
+  const position = Math.floor(Math.random() * (targetWord.length - 1)) + 1;
+  const letter = targetWord[position];
+  
+  return `The word has ${targetWord.length} letters, and the ${
+    position + 1
+  }${getOrdinalSuffix(position + 1)} letter is "${letter}".`;
+};
+
+// Helper function for ordinal suffixes
+export const getOrdinalSuffix = (n: number): string => {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
 };
