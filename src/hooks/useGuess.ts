@@ -105,27 +105,33 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
           // Generate a hint that hasn't been shown before
           let attempts = 0;
           let newHint = null;
+          const maxAttempts = 10; // Increase max attempts to find unique hint
           
-          // Try up to 5 times to get a unique hint
-          while (attempts < 5) {
+          // Try multiple times to get a unique hint
+          while (attempts < maxAttempts && (!newHint || updatedHints.includes(newHint))) {
             attempts++;
             newHint = generateHint(prev.targetWord, prev.categoryId, updatedGuesses);
+          }
+          
+          // If we found a unique hint, add it
+          if (newHint && !updatedHints.includes(newHint)) {
+            updatedHints.push(newHint);
+            toast.info("A new hint has been revealed!", {
+              position: "top-center"
+            });
+          } else if (attempts >= maxAttempts) {
+            // Fallback hint if we can't generate a unique one
+            const letterPositionHint = `The word "${prev.targetWord}" has ${prev.targetWord.length} letters, and the ${
+              Math.floor(Math.random() * prev.targetWord.length) + 1
+            }${getOrdinalSuffix(Math.floor(Math.random() * prev.targetWord.length) + 1)} letter is "${
+              prev.targetWord[Math.floor(Math.random() * prev.targetWord.length)]
+            }".`;
             
-            // Check if this hint is new
-            if (newHint && !prev.revealedHints.includes(newHint)) {
-              updatedHints.push(newHint);
+            if (!updatedHints.includes(letterPositionHint)) {
+              updatedHints.push(letterPositionHint);
               toast.info("A new hint has been revealed!", {
                 position: "top-center"
               });
-              break;
-            }
-          }
-          
-          // If we couldn't generate a unique hint after several attempts
-          if (attempts >= 5 && updatedHints.length === prev.revealedHints.length) {
-            newHint = `The word has ${prev.targetWord.length} letters.`;
-            if (!prev.revealedHints.includes(newHint)) {
-              updatedHints.push(newHint);
             }
           }
         }
@@ -144,6 +150,13 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
       setIsValidating(false);
     }
   }, [gameState.isGameOver, gameState.guesses, gameState.targetWord, gameState.categoryId, setGameState, isValidating]);
+
+  // Helper function for ordinal suffixes
+  const getOrdinalSuffix = (n: number): string => {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  };
 
   // Toggle hints on/off
   const toggleHints = useCallback(() => {
