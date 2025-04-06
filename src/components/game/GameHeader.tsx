@@ -52,64 +52,53 @@ const GameHeader: React.FC<GameHeaderProps> = ({
   };
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-lg font-semibold"
-        >
-          {categoryName}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="ml-2 cursor-help inline-flex">
-                  <Info size={16} className="text-goodguess-primary" />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-sm max-w-xs">
-                  {getCategoryTooltipContent()}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className={`text-xl font-bold ${
-            mode === 'speedrun' && timeRemaining && timeRemaining < 10
-              ? 'text-goodguess-danger animate-pulse'
-              : ''
-          }`}
-        >
-          {mode === 'speedrun' ? (
-            <>
-              {timeRemaining}s
-              <motion.div
-                className="h-1 bg-goodguess-primary mt-1 rounded-full"
-                initial={{ width: '100%' }}
-                animate={{ width: `${(timeRemaining! / 60) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </>
-          ) : (
-            `${getElapsedTime()}s`
-          )}
-        </motion.div>
-      </div>
-      
-      <motion.h1
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="text-2xl md:text-3xl font-bold text-center mb-8"
+    <div className="flex justify-between items-center">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="text-lg font-semibold"
       >
-        guess the word
-      </motion.h1>
-    </>
+        {categoryName}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="ml-2 cursor-help inline-flex">
+                <Info size={16} className="text-goodguess-primary" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-sm max-w-xs">
+                {getCategoryTooltipContent()}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className={`text-xl font-bold ${
+          mode === 'speedrun' && timeRemaining && timeRemaining < 10
+            ? 'text-goodguess-danger animate-pulse'
+            : ''
+        }`}
+      >
+        {mode === 'speedrun' ? (
+          <>
+            {timeRemaining}s
+            <motion.div
+              className="h-1 bg-goodguess-primary mt-1 rounded-full"
+              initial={{ width: '100%' }}
+              animate={{ width: `${(timeRemaining! / 60) * 100}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </>
+        ) : (
+          `${getElapsedTime()}s`
+        )}
+      </motion.div>
+    </div>
   );
 };
 

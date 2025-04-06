@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import NavBar from '../components/NavBar';
 import useGame, { GameMode } from '../hooks/useGame';
 import { categories } from '../data/categories';
@@ -52,13 +53,33 @@ const Game = () => {
       <NavBar />
       
       <div className="flex-1 flex flex-col p-6">
-        <GameHeader 
-          categoryName={category?.name || ''} 
-          timeRemaining={timeRemaining} 
-          getElapsedTime={getElapsedTime} 
-          mode={mode as GameMode}
-          categoryId={categoryId}
-        />
+        <div className="mb-2">
+          <GameHeader 
+            categoryName={category?.name || ''} 
+            timeRemaining={timeRemaining} 
+            getElapsedTime={getElapsedTime} 
+            mode={mode as GameMode}
+            categoryId={categoryId}
+          />
+          
+          <div className="mt-2 mb-4">
+            <HintDisplay 
+              hintsEnabled={gameState.hintsEnabled} 
+              toggleHints={toggleHints} 
+              currentHint={gameState.currentHint}
+              revealedHints={revealedHints} 
+            />
+          </div>
+        </div>
+        
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl md:text-3xl font-bold text-center mb-8"
+        >
+          guess the word
+        </motion.h1>
         
         <div className="max-w-md mx-auto w-full">
           <GuessForm 
@@ -68,14 +89,7 @@ const Game = () => {
             isValidating={isValidating}
           />
           
-          <div className="flex items-center justify-between mb-6">
-            <HintDisplay 
-              hintsEnabled={gameState.hintsEnabled} 
-              toggleHints={toggleHints} 
-              currentHint={gameState.currentHint}
-              revealedHints={revealedHints} 
-            />
-            
+          <div className="flex items-center justify-end mb-6">
             <GiveUpButton 
               onGiveUp={giveUp}
               targetWord={gameState.targetWord}
