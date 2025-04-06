@@ -197,6 +197,16 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
     return items;
   };
   
+  // Helper function to display the correct username
+  const displayUsername = (entry: LeaderboardEntry) => {
+    // If there's a user_id, display the username from profiles or "User" as fallback
+    if (entry.user_id) {
+      return entry.profiles?.username || 'User';
+    }
+    // If no user_id (anonymous player), display "Anonymous"
+    return 'Anonymous';
+  };
+  
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
@@ -300,7 +310,7 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
                 <TableRow key={entry.id} className={user?.id === entry.user_id ? "bg-goodguess-primary/10" : ""}>
                   <TableCell className="font-medium text-center">{showFilters ? (currentPage - 1) * entriesPerPage + index + 1 : index + 1}</TableCell>
                   <TableCell>
-                    {entry.user_id ? (entry.profiles.username || 'User') : 'Anonymous'}
+                    {displayUsername(entry)}
                   </TableCell>
                   <TableCell>{entry.category_id}</TableCell>
                   <TableCell className="capitalize">{entry.game_mode}</TableCell>
