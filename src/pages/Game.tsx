@@ -68,7 +68,7 @@ const Game = () => {
             isValidating={isValidating}
           />
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
             <HintDisplay 
               hintsEnabled={gameState.hintsEnabled} 
               toggleHints={toggleHints} 

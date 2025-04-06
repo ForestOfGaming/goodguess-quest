@@ -33,8 +33,7 @@ const GiveUpButton: React.FC<GiveUpButtonProps> = ({ onGiveUp, targetWord, isGam
       <DialogTrigger asChild>
         <Button 
           variant="destructive" 
-          size="sm" 
-          className="mt-2"
+          size="sm"
           disabled={isGameOver}
         >
           <Flag className="mr-2 h-4 w-4" />

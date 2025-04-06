@@ -21,7 +21,7 @@ const HintDisplay: React.FC<HintDisplayProps> = ({
 
   return (
     <>
-      <div className="flex items-center justify-center mb-6 space-x-2">
+      <div className="flex items-center space-x-2">
         <Lightbulb className={`w-5 h-5 ${hintsEnabled ? 'text-yellow-500' : 'text-gray-400'}`} />
         <span className="text-sm font-medium">Hints</span>
         <SwitchUI 
@@ -33,7 +33,7 @@ const HintDisplay: React.FC<HintDisplayProps> = ({
       </div>
       
       {visibleHints.length > 0 && hintsEnabled && (
-        <div className="space-y-2 mb-6">
+        <div className="space-y-2 mt-4">
           {visibleHints.map((hint, index) => (
             <motion.div 
               key={index}
