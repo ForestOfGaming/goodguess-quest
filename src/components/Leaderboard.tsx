@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { Trophy, ListFilter, AlertCircle, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { GameMode } from '@/hooks/useGame';
+import { categories } from '@/data/categories';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Database } from '@/integrations/supabase/types';
 import { 
   Pagination, 
@@ -233,35 +234,44 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
               <div className="py-4 space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Category</label>
-                  <select 
-                    className="w-full p-2 border rounded-md"
-                    value={selectedCategory || ''}
-                    onChange={(e) => {
-                      setSelectedCategory(e.target.value || undefined);
-                      setCurrentPage(1); // Reset to first page when filter changes
+                  <Select 
+                    value={selectedCategory || ''} 
+                    onValueChange={(value) => {
+                      setSelectedCategory(value || undefined);
+                      setCurrentPage(1);
                     }}
                   >
-                    <option value="">All Categories</option>
-                    <option value="animals">Animals</option>
-                    <option value="countries">Countries</option>
-                    <option value="food">Food</option>
-                    <option value="sports">Sports</option>
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Categories</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.emoji} {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Game Mode</label>
-                  <select 
-                    className="w-full p-2 border rounded-md"
-                    value={selectedMode || ''}
-                    onChange={(e) => {
-                      setSelectedMode(e.target.value as GameMode || undefined);
-                      setCurrentPage(1); // Reset to first page when filter changes
+                  <Select 
+                    value={selectedMode || ''} 
+                    onValueChange={(value) => {
+                      setSelectedMode(value as GameMode || undefined);
+                      setCurrentPage(1);
                     }}
                   >
-                    <option value="">All Modes</option>
-                    <option value="classic">Classic</option>
-                    <option value="speedrun">Speedrun</option>
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Modes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Modes</SelectItem>
+                      <SelectItem value="classic">Classic</SelectItem>
+                      <SelectItem value="speedrun">Speedrun</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </SheetContent>
