@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -235,9 +236,9 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Category</label>
                   <Select 
-                    value={selectedCategory || ''} 
+                    value={selectedCategory || 'all'} 
                     onValueChange={(value) => {
-                      setSelectedCategory(value || undefined);
+                      setSelectedCategory(value === 'all' ? undefined : value);
                       setCurrentPage(1);
                     }}
                   >
@@ -245,7 +246,7 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Categories</SelectItem>
+                      <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.emoji} {category.name}
@@ -257,9 +258,9 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Game Mode</label>
                   <Select 
-                    value={selectedMode || ''} 
+                    value={selectedMode || 'all'} 
                     onValueChange={(value) => {
-                      setSelectedMode(value as GameMode || undefined);
+                      setSelectedMode(value === 'all' ? undefined : value as GameMode);
                       setCurrentPage(1);
                     }}
                   >
@@ -267,7 +268,7 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
                       <SelectValue placeholder="All Modes" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Modes</SelectItem>
+                      <SelectItem value="all">All Modes</SelectItem>
                       <SelectItem value="classic">Classic</SelectItem>
                       <SelectItem value="speedrun">Speedrun</SelectItem>
                     </SelectContent>
