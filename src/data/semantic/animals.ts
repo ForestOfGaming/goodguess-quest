@@ -1,18 +1,15 @@
+
 import { SemanticData } from './types';
 
+// Animals database with species, habitat, and features
 export const animalsDatabase: Record<string, SemanticData> = {
   'elephant': {
     name: 'elephant',
-    related: ['mammoth', 'pachyderm', 'herbivore', 'land mammal', 'african animal', 'asian animal'],
+    related: ['mammoth', 'pachyderm'],
     properties: {
       species: ['mammal', 'herbivore', 'pachyderm'],
-      habitat: ['savanna', 'forest', 'jungle', 'grassland'],
-      features: ['trunk', 'tusks', 'large', 'gray'],
-      behavior: ['social', 'intelligent', 'maternal', 'peaceful'],
-      diet: ['vegetarian', 'herbivorous', 'plant-eater'],
-      size: ['large', 'heavy', 'tall'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      habitat: ['savanna', 'forest', 'jungle'],
+      features: ['trunk', 'tusks', 'large', 'gray']
     }
   },
   'tiger': {
@@ -21,12 +18,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'carnivore', 'feline', 'big cat'],
       habitat: ['jungle', 'forest', 'asia'],
-      features: ['stripes', 'orange', 'black', 'predator'],
-      behavior: ['agile', 'social', 'intelligent'],
-      diet: ['carnivorous', 'meat-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['stripes', 'orange', 'black', 'predator']
     }
   },
   'lion': {
@@ -35,12 +27,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'carnivore', 'feline', 'big cat'],
       habitat: ['savanna', 'grassland', 'africa'],
-      features: ['mane', 'tan', 'predator', 'pride'],
-      behavior: ['dominant', 'social', 'intelligent'],
-      diet: ['carnivorous', 'meat-eater'],
-      size: ['large', 'heavy'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['mane', 'tan', 'predator', 'pride']
     }
   },
   'zebra': {
@@ -49,12 +36,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore', 'equine'],
       habitat: ['savanna', 'grassland', 'africa'],
-      features: ['stripes', 'black', 'white', 'hooves'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['stripes', 'black', 'white', 'hooves']
     }
   },
   'giraffe': {
@@ -63,12 +45,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore'],
       habitat: ['savanna', 'grassland', 'africa'],
-      features: ['long neck', 'spots', 'tall', 'yellow', 'brown'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['large', 'heavy'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['long neck', 'spots', 'tall', 'yellow', 'brown']
     }
   },
   'monkey': {
@@ -77,12 +54,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'omnivore', 'primate'],
       habitat: ['jungle', 'forest', 'tropics'],
-      features: ['tail', 'climb', 'agile', 'social'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['omnivorous', 'plant-eater', 'meat-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['tail', 'climb', 'agile', 'social']
     }
   },
   'dolphin': {
@@ -91,12 +63,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'carnivore', 'cetacean'],
       habitat: ['ocean', 'sea', 'marine'],
-      features: ['intelligent', 'fins', 'tail', 'echolocation'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['carnivorous', 'meat-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['intelligent', 'fins', 'tail', 'echolocation']
     }
   },
   'penguin': {
@@ -105,12 +72,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['bird', 'carnivore', 'flightless'],
       habitat: ['antarctica', 'cold', 'ice', 'ocean'],
-      features: ['black', 'white', 'wings', 'waddle', 'swim'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['carnivorous', 'meat-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['black', 'white', 'wings', 'waddle', 'swim']
     }
   },
   'koala': {
@@ -119,12 +81,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore', 'marsupial'],
       habitat: ['australia', 'trees', 'forests'],
-      features: ['eucalyptus', 'pouch', 'gray', 'furry'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['eucalyptus', 'pouch', 'gray', 'furry']
     }
   },
   'kangaroo': {
@@ -133,12 +90,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore', 'marsupial'],
       habitat: ['australia', 'grassland'],
-      features: ['pouch', 'hop', 'jump', 'tail', 'powerful legs'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['pouch', 'hop', 'jump', 'tail', 'powerful legs']
     }
   },
   'cheetah': {
@@ -147,12 +99,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'carnivore', 'feline', 'big cat'],
       habitat: ['savanna', 'grassland', 'africa'],
-      features: ['spots', 'fast', 'slender', 'tan'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['carnivorous', 'meat-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['spots', 'fast', 'slender', 'tan']
     }
   },
   'rhinoceros': {
@@ -161,12 +108,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore', 'pachyderm'],
       habitat: ['savanna', 'grassland', 'africa', 'asia'],
-      features: ['horn', 'thick skin', 'large', 'gray'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['large', 'heavy'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['horn', 'thick skin', 'large', 'gray']
     }
   },
   'hippopotamus': {
@@ -175,12 +117,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore'],
       habitat: ['river', 'lake', 'water', 'africa'],
-      features: ['large mouth', 'water', 'large', 'gray'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['large', 'heavy'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['large mouth', 'water', 'large', 'gray']
     }
   },
   'crocodile': {
@@ -189,12 +126,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['reptile', 'carnivore', 'predator'],
       habitat: ['river', 'swamp', 'water', 'tropics'],
-      features: ['scales', 'teeth', 'tail', 'green'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['carnivorous', 'meat-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['scales', 'teeth', 'tail', 'green']
     }
   },
   'panda': {
@@ -203,12 +135,7 @@ export const animalsDatabase: Record<string, SemanticData> = {
     properties: {
       species: ['mammal', 'herbivore', 'bear'],
       habitat: ['forest', 'mountain', 'china'],
-      features: ['black', 'white', 'bamboo', 'cute'],
-      behavior: ['social', 'intelligent', 'agile'],
-      diet: ['herbivorous', 'plant-eater'],
-      size: ['medium', 'large'],
-      lifespan: ['long-lived', 'elderly'],
-      status: ['endangered', 'protected']
+      features: ['black', 'white', 'bamboo', 'cute']
     }
   }
 };

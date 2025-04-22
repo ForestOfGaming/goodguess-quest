@@ -1,17 +1,15 @@
+
 import { SemanticData } from './types';
 
+// Countries database with region, language, and features
 export const countriesDatabase: Record<string, SemanticData> = {
   'france': {
     name: 'france',
-    related: ['europe', 'european union', 'western europe', 'developed nation', 'republic'],
+    related: ['europe', 'european union'],
     properties: {
-      region: ['europe', 'western europe', 'mediterranean'],
+      region: ['europe', 'western europe'],
       language: ['french', 'romance'],
-      features: ['eiffel tower', 'wine', 'fashion', 'cuisine', 'art'],
-      climate: ['temperate', 'mediterranean', 'continental'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['wine', 'cuisine', 'art', 'fashion', 'literature']
+      features: ['eiffel tower', 'wine', 'fashion', 'cuisine', 'art']
     }
   },
   'japan': {
@@ -20,11 +18,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['asia', 'east asia'],
       language: ['japanese'],
-      features: ['sushi', 'anime', 'technology', 'cherry blossoms', 'mount fuji'],
-      climate: ['temperate', 'subtropical'],
-      geography: ['mountains', 'coastal'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['anime', 'technology', 'cherry blossoms', 'mount fuji']
+      features: ['sushi', 'anime', 'technology', 'cherry blossoms', 'mount fuji']
     }
   },
   'brazil': {
@@ -33,11 +27,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['south america', 'latin america'],
       language: ['portuguese'],
-      features: ['amazon', 'carnival', 'soccer', 'beaches', 'rainforest'],
-      climate: ['tropical', 'subtropical'],
-      geography: ['rainforest', 'coastal', 'mountains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['amazon', 'carnival', 'soccer', 'beaches', 'rainforest']
+      features: ['amazon', 'carnival', 'soccer', 'beaches', 'rainforest']
     }
   },
   'australia': {
@@ -46,11 +36,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['oceania', 'australia'],
       language: ['english'],
-      features: ['kangaroo', 'koala', 'outback', 'barrier reef', 'sydney opera house'],
-      climate: ['tropical', 'subtropical'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['kangaroo', 'koala', 'outback', 'barrier reef', 'sydney opera house']
+      features: ['kangaroo', 'koala', 'outback', 'barrier reef', 'sydney opera house']
     }
   },
   'canada': {
@@ -59,11 +45,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['north america'],
       language: ['english', 'french'],
-      features: ['maple syrup', 'hockey', 'mountains', 'lakes', 'forests'],
-      climate: ['temperate', 'subtropical'],
-      geography: ['mountains', 'coastal', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['maple syrup', 'hockey', 'mountains', 'lakes', 'forests']
+      features: ['maple syrup', 'hockey', 'mountains', 'lakes', 'forests']
     }
   },
   'mexico': {
@@ -72,11 +54,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['north america', 'latin america'],
       language: ['spanish'],
-      features: ['tacos', 'mariachi', 'beaches', 'pyramids', 'tequila'],
-      climate: ['tropical', 'subtropical'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['tacos', 'mariachi', 'beaches', 'pyramids', 'tequila']
+      features: ['tacos', 'mariachi', 'beaches', 'pyramids', 'tequila']
     }
   },
   'germany': {
@@ -85,11 +63,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['europe', 'western europe'],
       language: ['german', 'germanic'],
-      features: ['beer', 'cars', 'engineering', 'castles', 'pretzels'],
-      climate: ['temperate', 'continental'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['beer', 'cars', 'engineering', 'castles', 'pretzels']
+      features: ['beer', 'cars', 'engineering', 'castles', 'pretzels']
     }
   },
   'italy': {
@@ -98,11 +72,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['europe', 'southern europe'],
       language: ['italian', 'romance'],
-      features: ['pizza', 'pasta', 'art', 'rome', 'colosseum'],
-      climate: ['temperate', 'continental'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['pizza', 'pasta', 'art', 'rome', 'colosseum']
+      features: ['pizza', 'pasta', 'art', 'rome', 'colosseum']
     }
   },
   'spain': {
@@ -111,11 +81,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['europe', 'southern europe'],
       language: ['spanish', 'romance'],
-      features: ['paella', 'flamenco', 'bullfighting', 'beaches', 'siesta'],
-      climate: ['temperate', 'continental'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['paella', 'flamenco', 'bullfighting', 'beaches', 'siesta']
+      features: ['paella', 'flamenco', 'bullfighting', 'beaches', 'siesta']
     }
   },
   'china': {
@@ -124,11 +90,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['asia', 'east asia'],
       language: ['chinese', 'mandarin'],
-      features: ['great wall', 'kung fu', 'dragons', 'pandas', 'rice'],
-      climate: ['temperate', 'continental'],
-      geography: ['mountains', 'coastal', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['great wall', 'kung fu', 'dragons', 'pandas', 'rice']
+      features: ['great wall', 'kung fu', 'dragons', 'pandas', 'rice']
     }
   },
   'india': {
@@ -137,11 +99,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['asia', 'south asia'],
       language: ['hindi', 'english', 'bengali'],
-      features: ['taj mahal', 'curry', 'bollywood', 'yoga', 'spices'],
-      climate: ['temperate', 'subtropical'],
-      geography: ['mountains', 'coastal', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['taj mahal', 'curry', 'bollywood', 'yoga', 'spices']
+      features: ['taj mahal', 'curry', 'bollywood', 'yoga', 'spices']
     }
   },
   'egypt': {
@@ -150,11 +108,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['africa', 'north africa', 'middle east'],
       language: ['arabic'],
-      features: ['pyramids', 'sphinx', 'nile', 'pharaohs', 'desert'],
-      climate: ['arid', 'temperate'],
-      geography: ['desert', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['pyramids', 'sphinx', 'nile', 'pharaohs', 'desert']
+      features: ['pyramids', 'sphinx', 'nile', 'pharaohs', 'desert']
     }
   },
   'kenya': {
@@ -163,11 +117,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['africa', 'east africa'],
       language: ['swahili', 'english'],
-      features: ['safari', 'wildlife', 'savanna', 'marathon runners', 'masai mara'],
-      climate: ['tropical', 'subtropical'],
-      geography: ['savanna', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['safari', 'wildlife', 'savanna', 'marathon runners', 'masai mara']
+      features: ['safari', 'wildlife', 'savanna', 'marathon runners', 'masai mara']
     }
   },
   'argentina': {
@@ -176,11 +126,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['south america', 'latin america'],
       language: ['spanish'],
-      features: ['tango', 'beef', 'pampas', 'soccer', 'patagonia'],
-      climate: ['tropical', 'subtropical'],
-      geography: ['pampas', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['tango', 'beef', 'pampas', 'soccer', 'patagonia']
+      features: ['tango', 'beef', 'pampas', 'soccer', 'patagonia']
     }
   },
   'thailand': {
@@ -189,11 +135,7 @@ export const countriesDatabase: Record<string, SemanticData> = {
     properties: {
       region: ['asia', 'southeast asia'],
       language: ['thai'],
-      features: ['beaches', 'temples', 'elephants', 'pad thai', 'bangkok'],
-      climate: ['tropical', 'subtropical'],
-      geography: ['coastal', 'mountains', 'rivers', 'plains'],
-      economy: ['developed', 'industrial', 'tourism'],
-      culture: ['beaches', 'temples', 'elephants', 'pad thai', 'bangkok']
+      features: ['beaches', 'temples', 'elephants', 'pad thai', 'bangkok']
     }
   }
 };
