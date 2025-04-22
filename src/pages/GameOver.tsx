@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -20,14 +19,12 @@ const GameOver = () => {
   
   useEffect(() => {
     const saveScore = async () => {
-      if (!user) return;
-      
       try {
         // Insert the score to the leaderboard
         const { error } = await supabase
           .from('leaderboard')
           .insert({
-            user_id: user.id,
+            user_id: user ? user.id : null,  // Use null for anonymous users
             category_id: categoryId,
             game_mode: 'speedrun',
             score: wordsCount,

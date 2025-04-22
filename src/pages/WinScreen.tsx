@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -25,14 +24,12 @@ const WinScreen = () => {
   
   useEffect(() => {
     const saveScore = async () => {
-      if (!user) return;
-      
       try {
         // Insert the score into the leaderboard
         const { error } = await supabase
           .from('leaderboard')
           .insert({
-            user_id: user.id,
+            user_id: user ? user.id : null,  // Use null for anonymous users
             category_id: categoryId,
             game_mode: mode,
             score: mode === 'speedrun' ? 1 : 100, // For classic mode, score is always 100 (win)

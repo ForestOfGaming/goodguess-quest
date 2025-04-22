@@ -24,7 +24,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface LeaderboardEntry {
   id: string;
-  user_id: string;
+  user_id: string | null;
   category_id: string;
   game_mode: string;
   score: number;
@@ -32,7 +32,7 @@ interface LeaderboardEntry {
   created_at: string;
   profiles: {
     username: string | null;
-  };
+  } | null;
 }
 
 interface LeaderboardProps {
@@ -201,7 +201,7 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
   
   // Helper function to display the correct username
   const displayUsername = (entry: LeaderboardEntry) => {
-    // If there's a user_id, display the username from profiles or "User" as fallback
+    // If there's a user_id, display the username from profiles
     if (entry.user_id) {
       return entry.profiles?.username || 'User';
     }
