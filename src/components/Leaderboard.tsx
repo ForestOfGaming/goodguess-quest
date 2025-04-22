@@ -110,6 +110,8 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
         const { data, error } = await query;
         
         if (error) throw error;
+
+        console.log("Leaderboard data:", data); // Debug log to check the data structure
         
         setEntries(data as LeaderboardEntry[]);
       } catch (err: any) {
@@ -203,7 +205,11 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
   const displayUsername = (entry: LeaderboardEntry) => {
     // If there's a user_id, display the username from profiles
     if (entry.user_id) {
-      return entry.profiles?.username || 'User';
+      // Check if profiles data exists and has a username
+      if (entry.profiles && entry.profiles.username) {
+        return entry.profiles.username;
+      }
+      return 'User'; // Fallback if no username found
     }
     // If no user_id (anonymous player), display "Anonymous"
     return 'Anonymous';
