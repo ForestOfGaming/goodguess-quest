@@ -20,6 +20,36 @@ const GameOver = () => {
   useEffect(() => {
     const saveScore = async () => {
       try {
+        if (user) {
+          // Check if user has a profile record
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', user.id)
+            .single();
+            
+          if (profileError && profileError.code !== 'PGRST116') {
+            // PGRST116 means no rows returned
+            console.error('Error checking profile:', profileError);
+          }
+          
+          // If no profile exists or username is null, ensure we have one with the username from user metadata
+          if (!profileData || profileData.username === null) {
+            const username = user.user_metadata?.username || user.email?.split('@')[0] || 'User';
+            
+            const { error: upsertError } = await supabase
+              .from('profiles')
+              .upsert({ 
+                id: user.id,
+                username: username
+              });
+              
+            if (upsertError) {
+              console.error('Error updating profile:', upsertError);
+            }
+          }
+        }
+        
         // Insert the score to the leaderboard
         const { error } = await supabase
           .from('leaderboard')

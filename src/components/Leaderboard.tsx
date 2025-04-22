@@ -10,7 +10,6 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { GameMode } from '@/hooks/useGame';
 import { categories } from '@/data/categories';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Database } from '@/integrations/supabase/types';
 import { 
   Pagination, 
   PaginationContent, 
@@ -203,16 +202,18 @@ const Leaderboard = ({ categoryId, mode, limit = 10, showFilters = true }: Leade
   
   // Helper function to display the correct username
   const displayUsername = (entry: LeaderboardEntry) => {
-    // If there's a user_id, display the username from profiles
-    if (entry.user_id) {
-      // Check if profiles data exists and has a username
-      if (entry.profiles && entry.profiles.username) {
-        return entry.profiles.username;
-      }
-      return 'User'; // Fallback if no username found
+    // For anonymous users (no user_id)
+    if (!entry.user_id) {
+      return 'Anonymous';
     }
-    // If no user_id (anonymous player), display "Anonymous"
-    return 'Anonymous';
+    
+    // For logged-in users with profiles
+    if (entry.profiles && entry.profiles.username) {
+      return entry.profiles.username;
+    }
+    
+    // Fallback for users without a username in their profile
+    return 'User';
   };
   
   return (
