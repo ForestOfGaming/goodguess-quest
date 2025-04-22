@@ -111,7 +111,7 @@ export const calculateSemanticSimilarity = (guess: string, targetWord: string, c
   return Math.round(similarity);
 };
 
-// Updated country similarity calculation with stronger geographical weighting
+// Update the similarity calculation functions to consider the new properties
 const calculateCountrySimilarity = (guess: string, target: string, baseSimilarity: number): number => {
   const guessCountry = countriesDatabase[guess];
   const targetCountry = countriesDatabase[target];
@@ -120,56 +120,54 @@ const calculateCountrySimilarity = (guess: string, target: string, baseSimilarit
   
   let bonusPoints = 0;
   
-  // Check for region match (increased weight)
+  // Region match (high weight)
   if (guessCountry.properties.region?.some(region => 
     targetCountry.properties.region?.includes(region))) {
-    bonusPoints += 40; // Increased from 25
+    bonusPoints += 40;
   }
   
-  // Check for related terms (increased weight)
-  if (guessCountry.related.some(term => targetCountry.related.includes(term))) {
-    bonusPoints += 25; // Increased from 15
+  // Geography match
+  const guessGeography = guessCountry.properties.geography || [];
+  const targetGeography = targetCountry.properties.geography || [];
+  const commonGeography = guessGeography.filter(g => targetGeography.includes(g));
+  if (commonGeography.length > 0) {
+    bonusPoints += Math.min(commonGeography.length * 10, 30);
   }
   
-  // Check for language matches (increased weight)
-  const guessLanguages = guessCountry.properties.language || [];
-  const targetLanguages = targetCountry.properties.language || [];
-  let commonLanguages = 0;
-  
-  for (const language of guessLanguages) {
-    if (targetLanguages.includes(language)) {
-      commonLanguages++;
-    }
+  // Climate match
+  const guessClimate = guessCountry.properties.climate || [];
+  const targetClimate = targetCountry.properties.climate || [];
+  const commonClimate = guessClimate.filter(c => targetClimate.includes(c));
+  if (commonClimate.length > 0) {
+    bonusPoints += Math.min(commonClimate.length * 8, 25);
   }
   
-  if (commonLanguages > 0) {
-    const languageMatchPercentage = (commonLanguages / targetLanguages.length) * 100;
-    bonusPoints += Math.min(languageMatchPercentage, 30); // Increased from 20
+  // Culture match
+  const guessCulture = guessCountry.properties.culture || [];
+  const targetCulture = targetCountry.properties.culture || [];
+  const commonCulture = guessCulture.filter(c => targetCulture.includes(c));
+  if (commonCulture.length > 0) {
+    bonusPoints += Math.min(commonCulture.length * 5, 20);
   }
   
-  // Feature matches (reduced weight as they're less important than region)
-  const guessFeatures = guessCountry.properties.features || [];
-  const targetFeatures = targetCountry.properties.features || [];
-  let commonFeatures = 0;
-  
-  for (const feature of guessFeatures) {
-    if (targetFeatures.includes(feature)) {
-      commonFeatures++;
-    }
+  // Economy match
+  if (guessCountry.properties.economy?.some(e => 
+    targetCountry.properties.economy?.includes(e))) {
+    bonusPoints += 15;
   }
   
-  if (commonFeatures > 0) {
-    const featureMatchPercentage = (commonFeatures / targetFeatures.length) * 100;
-    bonusPoints += Math.min(featureMatchPercentage, 10); // Reduced from 15
-  }
+  // Related terms match (moderate weight)
+  const commonRelated = guessCountry.related.filter(term => 
+    targetCountry.related.includes(term));
+  bonusPoints += Math.min(commonRelated.length * 5, 20);
   
-  // Calculate final similarity with reduced base similarity weight
-  let finalSimilarity = (baseSimilarity * 0.3) + bonusPoints; // Base similarity only counts for 30%
+  // Calculate final similarity
+  let finalSimilarity = (baseSimilarity * 0.2) + bonusPoints; // Base similarity only counts for 20%
   
   return Math.min(finalSimilarity, 100);
 };
 
-// Update food similarity calculation to prioritize ingredients and country over word similarity
+// Similar updates for other category calculation functions
 const calculateFoodSimilarity = (guess: string, target: string, baseSimilarity: number): number => {
   const guessFood = foodDatabase[guess];
   const targetFood = foodDatabase[target];
@@ -178,35 +176,41 @@ const calculateFoodSimilarity = (guess: string, target: string, baseSimilarity: 
   
   let bonusPoints = 0;
   
-  // Check for ingredient matches (increased weight)
-  const guessIngredients = guessFood.properties.ingredients || [];
-  const targetIngredients = targetFood.properties.ingredients || [];
-  let commonIngredients = 0;
+  // Ingredient matches (high weight)
+  const commonIngredients = guessFood.properties.ingredients?.filter(i => 
+    targetFood.properties.ingredients?.includes(i)) || [];
+  bonusPoints += Math.min(commonIngredients.length * 10, 40);
   
-  for (const ingredient of guessIngredients) {
-    if (targetIngredients.includes(ingredient)) {
-      commonIngredients++;
-    }
+  // Type matches
+  if (guessFood.properties.type?.some(t => 
+    targetFood.properties.type?.includes(t))) {
+    bonusPoints += 30;
   }
   
-  if (commonIngredients > 0) {
-    const ingredientMatchPercentage = (commonIngredients / targetIngredients.length) * 100;
-    bonusPoints += Math.min(ingredientMatchPercentage, 40); // Increased from 25
+  // Texture matches
+  if (guessFood.properties.texture?.some(t => 
+    targetFood.properties.texture?.includes(t))) {
+    bonusPoints += 20;
   }
   
-  // Check for country match (increased weight)
-  if (guessFood.properties.country?.some(country => 
-    targetFood.properties.country?.includes(country))) {
-    bonusPoints += 35; // Increased from 20
+  // Temperature matches
+  if (guessFood.properties.temperature?.some(t => 
+    targetFood.properties.temperature?.includes(t))) {
+    bonusPoints += 15;
   }
   
-  // Check for related terms (increased weight)
-  if (guessFood.related.some(term => targetFood.related.includes(term))) {
-    bonusPoints += 30; // Increased from 15
+  // Occasion matches
+  if (guessFood.properties.occasion?.some(o => 
+    targetFood.properties.occasion?.includes(o))) {
+    bonusPoints += 15;
   }
   
-  // Calculate final similarity with reduced base similarity weight
-  let finalSimilarity = (baseSimilarity * 0.3) + bonusPoints; // Base similarity only counts for 30%
+  // Related terms
+  const commonRelated = guessFood.related.filter(term => 
+    targetFood.related.includes(term));
+  bonusPoints += Math.min(commonRelated.length * 5, 20);
+  
+  let finalSimilarity = (baseSimilarity * 0.2) + bonusPoints;
   
   return Math.min(finalSimilarity, 100);
 };
@@ -220,13 +224,13 @@ const calculateAnimalSimilarity = (guess: string, target: string, baseSimilarity
   
   let bonusPoints = 0;
   
-  // Check for species match (increased weight)
+    // Species match (increased weight)
   if (guessAnimal.properties.species?.some(species => 
     targetAnimal.properties.species?.includes(species))) {
     bonusPoints += 40; // Increased from 20
   }
   
-  // Check for habitat matches (increased weight)
+  // Habitat matches (increased weight)
   const guessHabitats = guessAnimal.properties.habitat || [];
   const targetHabitats = targetAnimal.properties.habitat || [];
   let commonHabitats = 0;
@@ -242,12 +246,12 @@ const calculateAnimalSimilarity = (guess: string, target: string, baseSimilarity
     bonusPoints += Math.min(habitatMatchPercentage, 35); // Increased from 20
   }
   
-  // Check for related terms (increased weight)
+    // Check for related terms (increased weight)
   if (guessAnimal.related.some(term => targetAnimal.related.includes(term))) {
     bonusPoints += 30; // Increased from 15
   }
   
-  // Feature matches (slightly reduced weight)
+    // Feature matches (slightly reduced weight)
   const guessFeatures = guessAnimal.properties.features || [];
   const targetFeatures = targetAnimal.properties.features || [];
   let commonFeatures = 0;
@@ -262,7 +266,7 @@ const calculateAnimalSimilarity = (guess: string, target: string, baseSimilarity
     const featureMatchPercentage = (commonFeatures / targetFeatures.length) * 100;
     bonusPoints += Math.min(featureMatchPercentage, 15); // Reduced from 20
   }
-  
+
   // Calculate final similarity with reduced base similarity weight
   let finalSimilarity = (baseSimilarity * 0.3) + bonusPoints; // Base similarity only counts for 30%
   
@@ -278,7 +282,7 @@ const calculateSportSimilarity = (guess: string, target: string, baseSimilarity:
   
   let bonusPoints = 0;
   
-  // Check for type match (increased weight)
+    // Check for type match (increased weight)
   if (guessSport.properties.type?.some(type => 
     targetSport.properties.type?.includes(type))) {
     bonusPoints += 40; // Increased from 25
@@ -300,12 +304,12 @@ const calculateSportSimilarity = (guess: string, target: string, baseSimilarity:
     bonusPoints += Math.min(equipmentMatchPercentage, 35); // Increased from 20
   }
   
-  // Check for related terms (increased weight)
+    // Check for related terms (increased weight)
   if (guessSport.related.some(term => targetSport.related.includes(term))) {
     bonusPoints += 30; // Increased from 15
   }
   
-  // Feature matches (reduced weight)
+    // Feature matches (reduced weight)
   const guessFeatures = guessSport.properties.features || [];
   const targetFeatures = targetSport.properties.features || [];
   let commonFeatures = 0;
@@ -320,7 +324,7 @@ const calculateSportSimilarity = (guess: string, target: string, baseSimilarity:
     const featureMatchPercentage = (commonFeatures / targetFeatures.length) * 100;
     bonusPoints += Math.min(featureMatchPercentage, 15); // Reduced from 15
   }
-  
+
   // Calculate final similarity with reduced base similarity weight
   let finalSimilarity = (baseSimilarity * 0.3) + bonusPoints; // Base similarity only counts for 30%
   
@@ -336,7 +340,7 @@ const calculateMovieSimilarity = (guess: string, target: string, baseSimilarity:
   
   let bonusPoints = 0;
   
-  // Check for genre match (increased weight)
+    // Check for genre match (increased weight)
   if (guessMovie.properties.genre?.some(genre => 
     targetMovie.properties.genre?.includes(genre))) {
     bonusPoints += 40; // Increased from 25
@@ -357,12 +361,12 @@ const calculateMovieSimilarity = (guess: string, target: string, baseSimilarity:
     bonusPoints += 35; // Increased from 30
   }
   
-  // Check for related terms (increased weight)
+    // Check for related terms (increased weight)
   if (guessMovie.related.some(term => targetMovie.related.includes(term))) {
     bonusPoints += 30; // Increased from 15
   }
   
-  // Feature matches (reduced weight)
+    // Feature matches (reduced weight)
   const guessFeatures = guessMovie.properties.features || [];
   const targetFeatures = targetMovie.properties.features || [];
   let commonFeatures = 0;
@@ -377,7 +381,7 @@ const calculateMovieSimilarity = (guess: string, target: string, baseSimilarity:
     const featureMatchPercentage = (commonFeatures / targetFeatures.length) * 100;
     bonusPoints += Math.min(featureMatchPercentage, 15); // Reduced from 20
   }
-  
+
   // Calculate final similarity with reduced base similarity weight
   let finalSimilarity = (baseSimilarity * 0.3) + bonusPoints; // Base similarity only counts for 30%
   

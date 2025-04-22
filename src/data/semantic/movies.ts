@@ -1,15 +1,18 @@
-
 import { SemanticData } from './types';
 
-// Movies database with genre, actors, directors and features
 export const moviesDatabase: Record<string, SemanticData> = {
   'avatar': {
     name: 'avatar',
-    related: ['scifi', 'james cameron'],
+    related: ['scifi', 'james cameron', 'pandora', 'blockbuster', 'special effects', 'action'],
     properties: {
-      genre: ['scifi', 'adventure', 'action'],
+      genre: ['scifi', 'adventure', 'action', 'fantasy'],
       director: ['james cameron'],
-      features: ['3d', 'aliens', 'pandora', 'visual effects', 'nature']
+      features: ['3d', 'aliens', 'pandora', 'visual effects', 'nature'],
+      themes: ['environmentalism', 'colonialism', 'nature', 'technology'],
+      style: ['CGI', 'special effects', 'action'],
+      setting: ['alien planet', 'future', 'space'],
+      tone: ['epic', 'dramatic', 'adventurous'],
+      production: ['high budget', 'blockbuster', 'technological']
     }
   },
   'titanic': {
