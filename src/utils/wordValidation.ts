@@ -1,5 +1,17 @@
 
 // Word validation that properly handles words of all lengths
+import { categoryWords } from '../data/semantic/wordLists';
+
+// Create a Set of all valid words from all categories for faster lookup
+const allGameWords = new Set<string>();
+
+// Populate the set with all words from all categories
+for (const category in categoryWords) {
+  categoryWords[category].forEach(word => {
+    allGameWords.add(word.toLowerCase());
+  });
+}
+
 export const isValidWord = (word: string): boolean => {
   if (!word || word.trim() === '') return false;
   
@@ -47,6 +59,12 @@ export const isValidWord = (word: string): boolean => {
 // Function to check if a word exists using the OpenAI API
 export const checkWordWithAI = async (word: string): Promise<boolean> => {
   try {
+    // First check if the word is in our game dictionary - if so, it's valid (fast path)
+    const normalizedWord = word.trim().toLowerCase();
+    if (allGameWords.has(normalizedWord)) {
+      return true; // Skip API call for words in our game dictionary
+    }
+    
     const { supabase } = await import('../integrations/supabase/client');
     
     const { data, error } = await supabase.functions.invoke('calculate-similarity', {

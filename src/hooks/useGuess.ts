@@ -1,4 +1,3 @@
-
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { isValidWord, checkWordWithAI } from '../utils/wordValidation';
@@ -30,8 +29,18 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
     setIsValidating(true);
     
     try {
-      // First validate if it's a real word using AI
-      const isRealWord = await checkWordWithAI(normalizedGuess);
+      // Add a quick check if this is a target word - skip validation
+      const isTargetWordInAnyCategory = Object.values(categoryWords).some(
+        words => words.includes(normalizedGuess)
+      );
+
+      // If it's a target word in any category, skip validation
+      let isRealWord = isTargetWordInAnyCategory;
+      
+      // Only validate with AI if it's not already in our dictionary
+      if (!isRealWord) {
+        isRealWord = await checkWordWithAI(normalizedGuess);
+      }
       
       if (!isRealWord) {
         toast.error("That doesn't seem to be a real word.");

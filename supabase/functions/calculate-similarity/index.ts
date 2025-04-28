@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -32,26 +31,22 @@ serve(async (req) => {
 
     // Handle word validation request
     if (action === 'validate') {
-      // Create a prompt for GPT to validate if a word is real
+      // Create a simpler prompt for GPT to validate if a word is real
       const messages = [
         {
           role: "system",
           content: 
-            `You are an AI that validates whether a word or term is real and commonly used.
-             You should only respond with a JSON object with a single field "isValid": true/false.
-             A word is considered valid if:
-             - It is a real word in English or another major language
-             - It is a proper noun that most people would recognize
-             - It is a common phrase or multi-word term
-             Do not include explanations or any text besides the JSON.`
+            `You are a word validator that only responds with a JSON object containing "isValid": true/false.
+             A word is valid if it's a real English word, proper noun people would recognize, or common term.
+             Only respond with {"isValid": true} or {"isValid": false}.`
         },
         {
           role: "user",
-          content: `Is "${guess}" a real word, name, or common term?`
+          content: `Is "${guess}" a real word, name, or term?`
         }
       ];
 
-      // Call OpenAI API for validation
+      // Call OpenAI API for validation - use the mini model for speed
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -61,8 +56,8 @@ serve(async (req) => {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: messages,
-          temperature: 0.3,
-          max_tokens: 100
+          temperature: 0.1, // Lower temperature for more deterministic responses
+          max_tokens: 30    // Reduce token limit for faster responses
         }),
       });
 
