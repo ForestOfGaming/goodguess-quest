@@ -35,99 +35,35 @@ export const isValidWord = (word: string): boolean => {
       }
     }
     
-    // Filter out keyboard mashing patterns
-    if (/^([qwert]+|[asdfg]+|[zxcvb]+|[yuiop]+|[hjkl]+|[nm]+)$/.test(segment)) {
+    // Basic length check (most real words aren't extremely long)
+    if (normalizedWord.length > 25) {
       return false;
     }
-    
-    // Filter out repetitive character sequences (like "aaaa", "bbbb")
-    if (/(.)\1{2,}/.test(segment)) {
-      return false;
-    }
-    
-    // Filter out words with too many consecutive consonants
-    const consonantPattern = /[bcdfghjklmnpqrstvwxyz]{4,}/;
-    if (consonantPattern.test(segment)) {
-      return false;
-    }
-    
-    // Filter out words with too many consecutive vowels
-    const vowelPattern = /[aeiou]{4,}/;
-    if (vowelPattern.test(segment)) {
-      return false;
-    }
-    
-    // Filter out obviously non-existent words (like "qxz", "jzx", etc.)
-    if (/[qxz]{2,}/.test(segment) || 
-        /[^aeiouy]{5,}/.test(segment) || // 5+ consonants in a row is unlikely
-        /q[^u]/.test(segment)) {  // q is almost always followed by u in English
-      return false;
-    }
-    
-    // Reject words with unusual consonant clusters
-    const unusualClusters = [
-      'bkb', 'bgb', 'bsb', 'czj', 'dfb', 'dtg', 'fgb', 'fkf', 'gkb', 'hzj', 'jfj', 'jvj', 
-      'kgk', 'lzx', 'mzx', 'pzp', 'qkq', 'tgb', 'vkv', 'wzx', 'xzx', 'zxc', 'vxt', 'kzs',
-      'mfp', 'bfg', 'qsd', 'wsx', 'kpt', 'ngl', 'fvl', 'qwt'
-    ];
-    
-    for (const cluster of unusualClusters) {
-      if (segment.includes(cluster)) {
-        return false;
-      }
-    }
-    
-    // Reject words that don't have enough vowels (every real word typically has vowels)
-    const vowels = segment.match(/[aeiou]/g);
-    if (!vowels && segment.length > 2 && !['cry', 'fly', 'try', 'shy', 'why', 'dry', 'rhythm', 'myth', 'gym', 'myth', 'lynx', 'wyrd'].includes(segment)) {
-      return false;
-    }
-    
-    // For longer words, ensure they have a reasonable vowel-to-consonant ratio
-    if (segment.length > 5) {
-      const vowelCount = vowels ? vowels.length : 0;
-      const consonantCount = segment.length - vowelCount;
-      
-      // Most English words have a somewhat balanced vowel-to-consonant ratio
-      if (vowelCount < 1 || consonantCount / vowelCount > 5) {
-        return false;
-      }
-    }
-    
-    // For shorter words (4 letters), apply stricter validation
-    if (segment.length === 4) {
-      // Check for unlikely letter combinations in 4-letter words
-      const unlikelyCombos = ['zzz', 'xxx', 'qqq', 'vvv', 'jjj', 'kfk', 'mfp', 'xkz'];
-      for (const combo of unlikelyCombos) {
-        if (segment.includes(combo)) {
-          return false;
-        }
-      }
-      
-      // Ensure 4-letter words have at least one vowel (or are in valid exceptions)
-      if (!vowels && !['myth', 'lynx', 'rhythm'].includes(segment)) {
-        return false;
-      }
-      
-      // Check the pattern isn't just a repeating pair (like 'abab', 'xyxy')
-      if (/^(..)\\1$/.test(segment)) {
-        return false;
-      }
-    }
-  }
-  
-  // Basic length check (most real words aren't extremely long)
-  if (normalizedWord.length > 25) {
-    return false;
   }
   
   return true;
-};
+}
 
-// Function to check if a word exists in an actual dictionary
-// This could be replaced with an actual API call to a dictionary service
+// Function to check if a word exists using the OpenAI API
 export const checkWordWithAI = async (word: string): Promise<boolean> => {
-  // This is a placeholder - in a real implementation, you would call an API
-  // For now, we'll return true to indicate that the word passed our basic checks
-  return true;
+  try {
+    const { supabase } = await import('../integrations/supabase/client');
+    
+    const { data, error } = await supabase.functions.invoke('calculate-similarity', {
+      body: {
+        guess: word,
+        action: 'validate'
+      }
+    });
+    
+    if (error) {
+      console.error('Error validating word with AI:', error);
+      return true; // Default to true if there's an error with the API
+    }
+    
+    return data?.isValid !== false; // Default to true unless explicitly false
+  } catch (error) {
+    console.error('Error checking word with API:', error);
+    return true; // Default to true if there's an error
+  }
 }

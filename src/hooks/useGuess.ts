@@ -17,7 +17,7 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
     const normalizedGuess = guess.trim().toLowerCase();
     
     if (!isValidWord(normalizedGuess)) {
-      toast.error("Please enter a valid word.");
+      toast.error("Please enter a valid word format.");
       return;
     }
     
@@ -30,8 +30,7 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
     setIsValidating(true);
     
     try {
-      // In a real implementation, this would call an AI or dictionary API
-      // For now we'll use the basic validation we already have
+      // First validate if it's a real word using AI
       const isRealWord = await checkWordWithAI(normalizedGuess);
       
       if (!isRealWord) {
