@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
-import { isValidWord, checkWordWithAI } from '../utils/wordValidation';
+import { isValidWord, checkWordWithAI, isInGameDictionary } from '../utils/wordValidation';
 import { calculateSemanticSimilarity } from '../utils/proximityCalculation';
 import { generateHint, generateLetterPositionHint } from '../utils/hintGeneration';
 import { categoryWords } from '../data/semantic';
@@ -30,12 +30,10 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
     
     try {
       // Add a quick check if this is a target word - skip validation
-      const isTargetWordInAnyCategory = Object.values(categoryWords).some(
-        words => words.includes(normalizedGuess)
-      );
+      const isInDictionary = isInGameDictionary(normalizedGuess);
 
-      // If it's a target word in any category, skip validation
-      let isRealWord = isTargetWordInAnyCategory;
+      // If it's a word in our dictionary, skip validation
+      let isRealWord = isInDictionary;
       
       // Only validate with AI if it's not already in our dictionary
       if (!isRealWord) {

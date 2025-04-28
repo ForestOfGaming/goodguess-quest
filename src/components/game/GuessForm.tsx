@@ -36,7 +36,9 @@ const GuessForm: React.FC<GuessFormProps> = ({ guess, setGuess, submitGuess, isV
           type="text"
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
-          className="w-full h-16 px-4 rounded-2xl border-2 border-goodguess-primary text-lg focus:outline-none focus:ring-2 focus:ring-goodguess-primary focus:border-transparent"
+          className={`w-full h-16 px-4 rounded-2xl border-2 text-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+            isValidating ? 'bg-gray-50 border-gray-300' : 'border-goodguess-primary focus:ring-goodguess-primary'
+          }`}
           placeholder={isValidating ? "Checking your guess..." : "Type your guess..."}
           autoComplete="off"
           disabled={isValidating}
