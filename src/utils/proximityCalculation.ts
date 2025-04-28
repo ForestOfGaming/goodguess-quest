@@ -6,8 +6,9 @@ import {
   moviesDatabase, 
   SemanticData 
 } from '../data/semantic';
+import { supabase } from "../integrations/supabase/client";
 
-// Function to calculate word similarity
+// Function to calculate word similarity (basic algorithm as fallback)
 export const calculateWordSimilarity = (word1: string, word2: string): number => {
   word1 = word1.toLowerCase();
   word2 = word2.toLowerCase();
@@ -80,30 +81,66 @@ export const calculateWordSimilarity = (word1: string, word2: string): number =>
   return Math.round(similarity);
 };
 
-// Calculate semantic similarity based on category
-export const calculateSemanticSimilarity = (guess: string, targetWord: string, categoryId: string): number => {
+// Calculate semantic similarity using AI when possible, with fallback to algorithmic approach
+export const calculateSemanticSimilarity = async (guess: string, targetWord: string, categoryId: string): Promise<number> => {
   const normalizedGuess = guess.toLowerCase();
   const normalizedTarget = targetWord.toLowerCase();
   
+  // If the words are identical, return 100% immediately
+  if (normalizedGuess === normalizedTarget) return 100;
+  
+  try {
+    // Try to use the OpenAI API via our edge function
+    const { data, error } = await supabase.functions.invoke('calculate-similarity', {
+      body: { 
+        guess: normalizedGuess, 
+        target: normalizedTarget, 
+        category: categoryId 
+      }
+    });
+
+    // If we got a valid proximity score from OpenAI, use it
+    if (!error && data && data.proximity !== null && data.proximity !== undefined) {
+      console.log(`AI-calculated proximity: ${data.proximity}`);
+      return data.proximity;
+    }
+
+    // If API call failed, log and fall back to algorithmic calculation
+    if (error) {
+      console.warn('Error calling AI for similarity:', error.message);
+    } else {
+      console.warn('AI returned invalid proximity:', data);
+    }
+  } catch (e) {
+    console.error('Exception during AI similarity calculation:', e);
+  }
+
+  // Fallback to algorithmic calculation
+  console.log('Falling back to algorithmic calculation');
+  return fallbackCalculateSemanticSimilarity(normalizedGuess, normalizedTarget, categoryId);
+};
+
+// The original algorithmic calculation, now as a fallback
+const fallbackCalculateSemanticSimilarity = (guess: string, target: string, categoryId: string): number => {
   // Base similarity from word comparison
-  let similarity = calculateWordSimilarity(normalizedGuess, normalizedTarget);
+  let similarity = calculateWordSimilarity(guess, target);
   
   // Category-specific semantic relationships
   switch (categoryId) {
     case 'food':
-      similarity = calculateFoodSimilarity(normalizedGuess, normalizedTarget, similarity);
+      similarity = calculateFoodSimilarity(guess, target, similarity);
       break;
     case 'animals':
-      similarity = calculateAnimalSimilarity(normalizedGuess, normalizedTarget, similarity);
+      similarity = calculateAnimalSimilarity(guess, target, similarity);
       break;
     case 'countries':
-      similarity = calculateCountrySimilarity(normalizedGuess, normalizedTarget, similarity);
+      similarity = calculateCountrySimilarity(guess, target, similarity);
       break;
     case 'sports':
-      similarity = calculateSportSimilarity(normalizedGuess, normalizedTarget, similarity);
+      similarity = calculateSportSimilarity(guess, target, similarity);
       break;
     case 'movies':
-      similarity = calculateMovieSimilarity(normalizedGuess, normalizedTarget, similarity);
+      similarity = calculateMovieSimilarity(guess, target, similarity);
       break;
   }
   

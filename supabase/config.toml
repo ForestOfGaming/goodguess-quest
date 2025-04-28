@@ -1,1 +1,5 @@
+
 project_id = "hxydxswrmpkspvbdbckd"
+
+[functions.calculate-similarity]
+verify_jwt = false

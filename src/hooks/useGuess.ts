@@ -1,8 +1,9 @@
+
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { isValidWord, checkWordWithAI } from '../utils/wordValidation';
 import { calculateSemanticSimilarity } from '../utils/proximityCalculation';
-import { generateHint, generateLetterPositionHint, getOrdinalSuffix } from '../utils/hintGeneration';
+import { generateHint, generateLetterPositionHint } from '../utils/hintGeneration';
 import { categoryWords } from '../data/semantic';
 import { GameState } from './useGameState';
 
@@ -39,8 +40,8 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
         return;
       }
       
-      // Calculate proximity to target
-      const proximity = calculateSemanticSimilarity(
+      // Calculate proximity to target - this is now async
+      const proximity = await calculateSemanticSimilarity(
         normalizedGuess, 
         gameState.targetWord, 
         gameState.categoryId
@@ -146,13 +147,6 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
       setIsValidating(false);
     }
   }, [gameState.isGameOver, gameState.guesses, gameState.targetWord, gameState.categoryId, setGameState, isValidating]);
-
-  // Helper function for ordinal suffixes
-  const getOrdinalSuffix = (n: number): string => {
-    const s = ['th', 'st', 'nd', 'rd'];
-    const v = n % 100;
-    return s[(v - 20) % 10] || s[v] || s[0];
-  };
 
   // Toggle hints on/off
   const toggleHints = useCallback(() => {
