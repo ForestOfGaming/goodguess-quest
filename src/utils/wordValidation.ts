@@ -86,7 +86,15 @@ export const checkWordWithAI = async (word: string): Promise<boolean> => {
       return true; // Default to true if there's an error with the API
     }
     
-    return data?.isValid !== false; // Default to true unless explicitly false
+    if (data?.isValid === false && data?.closestWord) {
+      console.log(`Word "${normalizedWord}" is not valid, but close to "${data.closestWord}"`);
+      return false; // Not a valid word, but we have a suggestion
+    } else if (data?.isValid === false) {
+      console.log(`Word "${normalizedWord}" is not a valid word`);
+      return false; // Not a valid word
+    }
+    
+    return true; // Default to true unless explicitly false
   } catch (error) {
     console.error('Error checking word with API:', error);
     return true; // Default to true if there's an error

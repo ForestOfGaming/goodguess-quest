@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Timer, Target } from 'lucide-react';
+import { Timer } from 'lucide-react';
 
 interface GameModeCardProps {
   mode: 'speedrun' | 'classic';
@@ -23,7 +23,11 @@ const GameModeCard: React.FC<GameModeCardProps> = ({ mode, onClick }) => {
         {mode === 'speedrun' ? (
           <Timer className="w-12 h-12 text-goodguess-secondary mb-4" />
         ) : (
-          <Target className="w-12 h-12 text-goodguess-secondary mb-4" />
+          <img
+            src="https://hxydxswrmpkspvbdbckd.supabase.co/storage/v1/object/sign/ah/Capture2.PNG?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJhaC9DYXB0dXJlMi5QTkciLCJpYXQiOjE3NDU5NTA3ODgsImV4cCI6MTc3NzQ4Njc4OH0.791PN5lN4qnRtqFDNvr-que0w_yqBPzEFNV6xR1_OT4"
+            alt="Classic Mode"
+            className="w-12 h-12 text-goodguess-secondary mb-4"
+          />
         )}
         <h3 className="text-3xl font-extrabold text-goodguess-secondary">
           {mode === 'speedrun' ? 'speedrun' : 'classic'}
