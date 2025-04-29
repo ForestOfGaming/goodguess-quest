@@ -11,7 +11,7 @@ const Logo: React.FC = () => {
       onClick={() => navigate('/')}
     >
       <img
-        className="w-48 h-48"
+        className="w-80 h-40"
         src="https://hxydxswrmpkspvbdbckd.supabase.co/storage/v1/object/public/images//783b28c9-66b5-427b-a46b-226de081486b.jfif"
         alt="Good Guess Logo"
       />
