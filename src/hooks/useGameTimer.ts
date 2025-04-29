@@ -28,7 +28,7 @@ export const useGameTimer = (gameState: GameState) => {
           // Only decrement once per second
           const now = Date.now();
           const secondsPassed = Math.floor((now - gameState.startTime) / 1000);
-          const newValue = gameState.timeLimit! - secondsPassed;
+          const newValue = 180 - secondsPassed; // 3 minutes in seconds
           return newValue > 0 ? newValue : 0;
         });
       }
