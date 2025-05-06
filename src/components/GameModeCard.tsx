@@ -21,13 +21,21 @@ const GameModeCard: React.FC<GameModeCardProps> = ({ mode, onClick }) => {
     >
       <div className="h-full w-full flex flex-col items-center justify-center p-8">
         {mode === 'speedrun' ? (
-          <Timer className="w-12 h-12 text-goodguess-secondary mb-4" />
+          <>
+            <Timer className="w-12 h-12 text-goodguess-secondary mb-4" />
+            <h3 className="text-3xl font-extrabold text-goodguess-secondary">
+              speedrun
+            </h3>
+          </>
         ) : (
-          <div className="w-12 h-12 text-goodguess-secondary mb-4" />
+          <div className="flex flex-col items-center justify-center h-full w-full">
+            <img 
+              src="/lovable-uploads/3cf2364e-9378-4c39-8e66-621371f16019.png" 
+              alt="Classic mode" 
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
         )}
-        <h3 className="text-3xl font-extrabold text-goodguess-secondary">
-          {mode === 'speedrun' ? 'speedrun' : 'classic'}
-        </h3>
       </div>
     </motion.div>
   );
