@@ -43,11 +43,11 @@ export const categoryWords: Record<string, string[]> = {
     'drone', 'server', 'database', 'encryption', 'firewall', 'desktop', 'router', 'browser',
     'keyboard', 'monitor', 'binary', 'quantum', 'cybersecurity', 'automation'
   ],
-  'music': [
-    'guitar', 'piano', 'violin', 'drums', 'concert', 'melody', 'rhythm', 'lyrics', 'orchestra',
-    'genre', 'symphony', 'album', 'saxophone', 'trumpet', 'flute', 'choir', 'composer', 'bass',
-    'harp', 'clarinet', 'record', 'playlist', 'performer', 'chorus', 'musicality', 'jazz',
-    'opera', 'conductor', 'harmonica', 'acoustic'
+  'italianbrainrot': [
+    'pizza', 'pasta', 'risotto', 'gelato', 'espresso', 'cappuccino', 'tiramisu', 'cannoli', 
+    'lasagna', 'gnocchi', 'prosciutto', 'mozzarella', 'parmesan', 'ferrari', 'vespa', 
+    'rome', 'venice', 'tuscany', 'sicily', 'napoli', 'milan', 'florence', 'amalfi', 
+    'colosseum', 'gondola', 'vatican', 'pisa', 'mafia', 'soprano', 'godfather'
   ],
   'nature': [
     'mountain', 'ocean', 'forest', 'desert', 'waterfall', 'river', 'volcano', 'glacier',
