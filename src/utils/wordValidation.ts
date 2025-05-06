@@ -62,13 +62,13 @@ export const isInGameDictionary = (word: string): boolean => {
   return allGameWords.has(normalizedWord);
 }
 
-// Function to check if a word exists using the API
+// Function to check if a word exists using the OpenAI API
 export const checkWordWithAI = async (word: string): Promise<boolean> => {
   try {
     // First check if the word is in our game dictionary - if so, it's valid (fast path)
     const normalizedWord = word.trim().toLowerCase();
     if (isInGameDictionary(normalizedWord)) {
-      console.log(`Word "${normalizedWord}" found in dictionary, skipping API validation`);
+      console.log(`Word "${normalizedWord}" found in dictionary, skipping AI validation`);
       return true; // Skip API call for words in our game dictionary
     }
     
@@ -82,7 +82,7 @@ export const checkWordWithAI = async (word: string): Promise<boolean> => {
     });
     
     if (error) {
-      console.error('Error validating word with API:', error);
+      console.error('Error validating word with AI:', error);
       return true; // Default to true if there's an error with the API
     }
     

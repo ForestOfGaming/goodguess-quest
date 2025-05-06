@@ -43,9 +43,9 @@ export const categories: Category[] = [
     emoji: '💻'
   },
   {
-    id: 'italianbrainrot',
-    name: 'Italian Brainrot',
-    emoji: '🇮🇹'
+    id: 'music',
+    name: 'Music',
+    emoji: '🎵'
   },
   {
     id: 'nature',
