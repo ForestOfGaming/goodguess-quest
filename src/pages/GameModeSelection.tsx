@@ -5,12 +5,10 @@ import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
 import NavBar from '../components/NavBar';
 import GameModeCard from '../components/GameModeCard';
-import { useIsMobile } from '../hooks/use-mobile';
 
 const GameModeSelection = () => {
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId: string }>();
-  const isMobile = useIsMobile();
   
   const handleModeSelect = (mode: 'speedrun' | 'classic') => {
     navigate(`/game/${categoryId}/${mode}`);
@@ -39,9 +37,7 @@ const GameModeSelection = () => {
           Choose your gamemode
         </motion.h1>
         
-        <div className={
-          isMobile ? "flex flex-col gap-6 max-w-4xl mx-auto w-full" : "grid grid-cols-2 gap-8 max-w-4xl mx-auto w-full"
-        }>
+        <div className="grid grid-cols-2 gap-8 max-w-4xl mx-auto w-full">
           <div className="w-full">
             <GameModeCard mode="speedrun" onClick={handleModeSelect} />
           </div>
