@@ -5,10 +5,12 @@ import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
 import NavBar from '../components/NavBar';
 import GameModeCard from '../components/GameModeCard';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const GameModeSelection = () => {
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId: string }>();
+  const isMobile = useIsMobile();
   
   const handleModeSelect = (mode: 'speedrun' | 'classic') => {
     navigate(`/game/${categoryId}/${mode}`);
@@ -37,10 +39,21 @@ const GameModeSelection = () => {
           Choose your gamemode
         </motion.h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto h-80">
-          <GameModeCard mode="speedrun" onClick={handleModeSelect} />
-          <GameModeCard mode="classic" onClick={handleModeSelect} />
-        </div>
+        {isMobile ? (
+          <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full">
+            <div className="aspect-[4/3] w-full">
+              <GameModeCard mode="speedrun" onClick={handleModeSelect} />
+            </div>
+            <div className="aspect-[4/3] w-full">
+              <GameModeCard mode="classic" onClick={handleModeSelect} />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto h-80">
+            <GameModeCard mode="speedrun" onClick={handleModeSelect} />
+            <GameModeCard mode="classic" onClick={handleModeSelect} />
+          </div>
+        )}
       </div>
     </div>
   );
