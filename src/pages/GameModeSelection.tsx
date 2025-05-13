@@ -37,7 +37,7 @@ const GameModeSelection = () => {
           Choose your gamemode
         </motion.h1>
         
-        <div className="grid grid-cols-2 gap-8 max-w-4xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto w-full">
           <div className="w-full">
             <GameModeCard mode="speedrun" onClick={handleModeSelect} />
           </div>
