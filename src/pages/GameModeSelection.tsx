@@ -6,6 +6,7 @@ import Logo from '../components/Logo';
 import NavBar from '../components/NavBar';
 import GameModeCard from '../components/GameModeCard';
 import { useIsMobile } from '../hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 const GameModeSelection = () => {
   const navigate = useNavigate();
