@@ -6,7 +6,6 @@ import Logo from '../components/Logo';
 import NavBar from '../components/NavBar';
 import GameModeCard from '../components/GameModeCard';
 import { useIsMobile } from '../hooks/use-mobile';
-import { cn } from '@/lib/utils';
 
 const GameModeSelection = () => {
   const navigate = useNavigate();
@@ -40,10 +39,9 @@ const GameModeSelection = () => {
           Choose your gamemode
         </motion.h1>
         
-        <div className={cn(
-          "max-w-4xl mx-auto w-full",
-          isMobile ? "flex flex-col gap-6" : "grid grid-cols-2 gap-8"
-        )}>
+        <div className={
+          isMobile ? "flex flex-col gap-6 max-w-4xl mx-auto w-full" : "grid grid-cols-2 gap-8 max-w-4xl mx-auto w-full"
+        }>
           <div className="w-full">
             <GameModeCard mode="speedrun" onClick={handleModeSelect} />
           </div>
