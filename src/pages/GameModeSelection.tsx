@@ -39,21 +39,17 @@ const GameModeSelection = () => {
           Choose your gamemode
         </motion.h1>
         
-        {isMobile ? (
-          <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full">
-            <div className="aspect-[4/3] w-full">
-              <GameModeCard mode="speedrun" onClick={handleModeSelect} />
-            </div>
-            <div className="aspect-[4/3] w-full">
-              <GameModeCard mode="classic" onClick={handleModeSelect} />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto h-80">
+        <div className={cn(
+          "max-w-4xl mx-auto w-full",
+          isMobile ? "flex flex-col gap-6" : "grid grid-cols-2 gap-8"
+        )}>
+          <div className="w-full">
             <GameModeCard mode="speedrun" onClick={handleModeSelect} />
+          </div>
+          <div className="w-full">
             <GameModeCard mode="classic" onClick={handleModeSelect} />
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
