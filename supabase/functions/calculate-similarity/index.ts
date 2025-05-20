@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -109,6 +110,9 @@ serve(async (req) => {
               * Shared characteristics or properties
               * Cultural or conceptual connections
             
+            Your scores should utilize the full range from 0 to 100, avoiding clustering around certain values.
+            Each guess should receive a unique score appropriate to its similarity.
+            
             Respond with ONLY a JSON object with a single field "proximity": the similarity score.
             Do not include explanations or any text besides the JSON.`
         },
@@ -128,7 +132,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: messages,
-          temperature: 0.3,
+          temperature: 0.7, // Increased temperature for more varied responses
           max_tokens: 150
         }),
       });
@@ -151,7 +155,7 @@ serve(async (req) => {
           proximity = numberMatch ? parseInt(numberMatch[1]) : null;
         }
         
-        // Ensure proximity is within valid range
+        // Ensure proximity is within valid range but don't round to multiples of 5
         if (proximity !== null) {
           proximity = Math.max(0, Math.min(100, Math.round(proximity)));
         }

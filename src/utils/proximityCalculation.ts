@@ -78,7 +78,8 @@ export const calculateWordSimilarity = (word1: string, word2: string): number =>
   // Ensure the value is within 0-100 range
   similarity = Math.max(0, Math.min(similarity, 100));
   
-  return Math.round(similarity);
+  // Return the exact similarity value without rounding
+  return similarity;
 };
 
 // Calculate semantic similarity using AI when possible, with fallback to algorithmic approach
@@ -150,7 +151,8 @@ const fallbackCalculateSemanticSimilarity = (guess: string, target: string, cate
   // Ensure the value is within 0-100 range
   similarity = Math.max(0, Math.min(similarity, 100));
   
-  return Math.round(similarity);
+  // Return exact similarity value without rounding
+  return similarity;
 };
 
 // Calculate food similarity using food database
