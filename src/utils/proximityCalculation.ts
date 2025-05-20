@@ -78,8 +78,14 @@ export const calculateWordSimilarity = (word1: string, word2: string): number =>
   // Ensure the value is within 0-100 range
   similarity = Math.max(0, Math.min(similarity, 100));
   
-  // Return the exact similarity value without rounding
-  return similarity;
+  // Ensure the last digit is between 1-9 (never 0)
+  const floorValue = Math.floor(similarity);
+  if (floorValue % 10 === 0) {
+    // If the last digit would be 0, add a random digit between 1-9
+    return floorValue + Math.floor(Math.random() * 9) + 1;
+  }
+  
+  return floorValue;
 };
 
 // Calculate semantic similarity using AI when possible, with fallback to algorithmic approach
@@ -135,6 +141,7 @@ const fallbackCalculateSemanticSimilarity = (guess: string, target: string, cate
       similarity = calculateAnimalSimilarity(guess, target, similarity);
       break;
     case 'countries':
+      // Special handling for countries to prioritize geographic proximity
       similarity = calculateCountrySimilarity(guess, target, similarity);
       break;
     case 'sports':
@@ -149,9 +156,14 @@ const fallbackCalculateSemanticSimilarity = (guess: string, target: string, cate
   similarity = Math.max(3, similarity);
   
   // Ensure the value is within 0-100 range
-  similarity = Math.max(0, Math.min(similarity, 100));
+  similarity = Math.max(0, Math.min(100, Math.floor(similarity)));
   
-  // Return exact similarity value without rounding
+  // Ensure the last digit is between 1-9 (never 0)
+  if (similarity % 10 === 0) {
+    // If the last digit is 0, change it to a random number between 1-9
+    similarity = similarity - 1 + Math.floor(Math.random() * 9) + 1;
+  }
+  
   return similarity;
 };
 
@@ -255,7 +267,7 @@ const calculateAnimalSimilarity = (guess: string, target: string, baseSimilarity
   return Math.min(baseSimilarity + bonusPoints, 100);
 };
 
-// Calculate country similarity using countries database
+// Calculate country similarity using countries database - enhanced for geographic proximity
 const calculateCountrySimilarity = (guess: string, target: string, baseSimilarity: number): number => {
   const guessCountry = countriesDatabase[guess];
   const targetCountry = countriesDatabase[target];
@@ -264,18 +276,25 @@ const calculateCountrySimilarity = (guess: string, target: string, baseSimilarit
   
   let bonusPoints = 0;
   
-  // Check for related terms
+  // Check for related terms - increased for better regional matching
   if (guessCountry.related.some(term => targetCountry.related.includes(term))) {
-    bonusPoints += 15;
+    bonusPoints += 20; // Increased from 15
   } else {
     // Small bonus just for being in the same category
     bonusPoints += 5;
   }
   
-  // Check for region match
+  // Check for region match - significantly increased for neighboring countries
   if (guessCountry.properties.region?.some(region => 
     targetCountry.properties.region?.includes(region))) {
-    bonusPoints += 25;
+    bonusPoints += 35; // Increased from 25 for better region matching
+  }
+  
+  // Check for neighboring countries - special high bonus
+  const guessNeighbors = guessCountry.properties.neighbors || [];
+  if (guessNeighbors.includes(target)) {
+    bonusPoints += 50; // High bonus for direct neighbors
+    // Spain and Portugal should now receive this bonus
   }
   
   // Check for language matches

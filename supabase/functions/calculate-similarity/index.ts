@@ -95,26 +95,59 @@ serve(async (req) => {
         );
       }
 
-      // Create a prompt for GPT to evaluate the similarity
+      // Create a more specific prompt based on the category - special handling for countries
+      let systemPrompt = 
+        `You are an AI that evaluates semantic similarity between words in a word-guessing game.
+        You will be given two words and their category.
+        Return a similarity score from 0 to 100, where:
+        - 100 means they are identical
+        - 0 means they have absolutely nothing in common
+        
+        Your scores should utilize the full range from 0 to 100.
+        The last digit of your score must be between 1 and 9 (never use 0 as the last digit).
+        
+        Respond with ONLY a JSON object with a single field "proximity": the similarity score.
+        Do not include explanations or any text besides the JSON.`;
+
+      // Special handling for countries category
+      if (category === 'countries') {
+        systemPrompt = 
+          `You are an AI that evaluates the geographic and cultural similarity between countries.
+          You will be given two country names.
+          Return a similarity score from 0 to 100, where:
+          - 100 means they are identical
+          - 0 means they have absolutely nothing in common
+          
+          When scoring country similarity, prioritize these factors (in order):
+          1. Geographic proximity (neighboring countries should score at least 70+)
+          2. Shared region/continent (countries in the same region score at least 50+)
+          3. Cultural, linguistic, and historical connections
+          4. Economic and political relationships
+          
+          Examples:
+          - Spain and Portugal should score 85-95 (neighbors, shared history, similar culture)
+          - USA and Canada should score 80-90 (neighbors, shared language, similar culture)
+          - France and Italy should score 70-80 (close European countries, Latin languages)
+          - UK and Australia should score 50-60 (historical ties but geographically distant)
+          - Japan and Brazil should score 10-20 (very different geography and culture)
+          
+          Your scores should utilize the full range from 0 to 100.
+          The last digit of your score must be between 1 and 9 (never use 0 as the last digit).
+          
+          Respond with ONLY a JSON object with a single field "proximity": the similarity score.
+          Do not include explanations or any text besides the JSON.`;
+      } else {
+        // For other categories, add category-specific scoring guidance
+        systemPrompt += `\nScores in between reflect the degree of similarity based on:
+          * Semantic relationship in the given category
+          * Shared characteristics or properties
+          * Cultural or conceptual connections`;
+      }
+
       const messages = [
         {
           role: "system",
-          content: 
-            `You are an AI that evaluates semantic similarity between words in a word-guessing game.
-            You will be given two words and their category.
-            Return a similarity score from 0 to 100, where:
-            - 100 means they are identical
-            - 0 means they have absolutely nothing in common
-            - Scores in between reflect the degree of similarity based on:
-              * Semantic relationship in the given category
-              * Shared characteristics or properties
-              * Cultural or conceptual connections
-            
-            Your scores should utilize the full range from 0 to 100, avoiding clustering around certain values.
-            Each guess should receive a unique score appropriate to its similarity.
-            
-            Respond with ONLY a JSON object with a single field "proximity": the similarity score.
-            Do not include explanations or any text besides the JSON.`
+          content: systemPrompt
         },
         {
           role: "user",
@@ -155,9 +188,16 @@ serve(async (req) => {
           proximity = numberMatch ? parseInt(numberMatch[1]) : null;
         }
         
-        // Ensure proximity is within valid range but don't round to multiples of 5
+        // Ensure proximity is within valid range
         if (proximity !== null) {
-          proximity = Math.max(0, Math.min(100, Math.round(proximity)));
+          // Make sure proximity is within the 0-100 range
+          proximity = Math.max(0, Math.min(100, Math.floor(proximity)));
+          
+          // Ensure the last digit is between 1-9 (never 0)
+          if (proximity % 10 === 0) {
+            // If the last digit is 0, change it to a random number between 1-9
+            proximity = proximity - 1 + Math.floor(Math.random() * 9) + 1;
+          }
         }
       } catch (e) {
         console.error('Error parsing proximity:', e);
