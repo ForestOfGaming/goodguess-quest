@@ -1,3 +1,4 @@
+
 import { 
   foodDatabase, 
   animalsDatabase, 
@@ -97,6 +98,8 @@ export const calculateSemanticSimilarity = async (guess: string, targetWord: str
   if (normalizedGuess === normalizedTarget) return 100;
   
   try {
+    console.log(`Calling OpenAI API for similarity between "${normalizedGuess}" and "${normalizedTarget}"`);
+    
     // Try to use the OpenAI API via our edge function
     const { data, error } = await supabase.functions.invoke('calculate-similarity', {
       body: { 

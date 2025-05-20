@@ -1,3 +1,4 @@
+
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { isValidWord, checkWordWithAI, isInGameDictionary } from '../utils/wordValidation';
@@ -37,6 +38,7 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
       
       // Only validate with AI if it's not already in our dictionary
       if (!isRealWord) {
+        console.log('Validating word with AI:', normalizedGuess);
         isRealWord = await checkWordWithAI(normalizedGuess);
       }
       
@@ -46,12 +48,16 @@ export const useGuess = (gameState: GameState, setGameState: React.Dispatch<Reac
         return;
       }
       
+      console.log('Calculating similarity between', normalizedGuess, 'and', gameState.targetWord);
+      
       // Calculate proximity to target - this is now async
       const proximity = await calculateSemanticSimilarity(
         normalizedGuess, 
         gameState.targetWord, 
         gameState.categoryId
       );
+      
+      console.log('Calculated proximity:', proximity);
       
       // Add to guesses
       setGameState(prev => {
